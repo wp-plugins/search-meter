@@ -3,11 +3,11 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the <a href="index.php?page=search-meter.php">Search Meter Statistics</a> page to see what your visitors are searching for on your blog.
-Version: 2.3
+Version: 2.3+
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
-$Revision: 109 $
+$Revision: 113 $
 
 
 INSTRUCTIONS
@@ -26,11 +26,10 @@ INSTRUCTIONS
   sm_list_recent_searches() template tags.
 * For full details, see http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 
-Thanks to Kaufman (http://www.terrik.com/wordpress/) and the many others who have for valuable coding suggestions.
-The many other users who have offered suggestions.
+Thanks to Kaufman (http://www.terrik.com/wordpress/) and the many others who have offered suggestions.
 
 
-Copyright (C) 2005-07 Bennett McElwee (bennett at thunderguy dotcom)
+Copyright (C) 2005-08 Bennett McElwee (bennett at thunderguy dotcom)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General Public
@@ -191,14 +190,7 @@ function sm_list_recent_searches_control() {
 }
 
 function sm_constrain_widget_search_count($number) {
-	if (!$number) {
-		$number = 5;
-	} else if ($number < 1) {
-		$number = 1;
-	} else if (100 < $number) {
-		$number = 100;
-	}
-	return $number;
+	return max(1, min((int)$number, 100));
 }
 
 function tguy_sm_register_widgets() {
@@ -236,8 +228,7 @@ function tguy_sm_save_search(&$posts) {
 		$search_terms = $search_string;
 		$search_terms = preg_replace('/[," ]+/', ' ', $search_terms);
 		$search_terms = trim($search_terms);
-		// This actually only returns a maximum of the number of posts per page
-		$hit_count = count($posts);
+		$hit_count = $wp_query->found_posts; // Thanks to Will for this line
 		// Other useful details of the search
 		$details = '';
 		$options = get_option('tguy_search_meter');
@@ -252,19 +243,19 @@ function tguy_sm_save_search(&$posts) {
 		}
 
 		// Sanitise as necessary
-		$search_string = addslashes($search_string);
-		$search_terms = addslashes($search_terms);
-		$details = addslashes($details);
+		$search_string = $wpdb->escape($search_string);
+		$search_terms = $wpdb->escape($search_terms);
+		$details = $wpdb->escape($details);
 
 		// Save the individual search to the DB
 		$query = "INSERT INTO `{$table_prefix}searchmeter_recent` (`terms`,`datetime`,`hits`,`details`)
 		VALUES ('$search_string',NOW(),$hit_count,'$details')";
-		$success = mysql_query($query);
+		$success = $wpdb->query($query);
 		// If it failed, maybe the table was never created.
 		// Try to create it and then try again.
 		if (!$success) {
 			if (tguy_sm_create_recent_table()) {
-				$success = mysql_query($query);
+				$success = $wpdb->query($query);
 			}
 		}
 		if ($success) {
@@ -279,19 +270,19 @@ function tguy_sm_save_search(&$posts) {
 					FROM `{$table_prefix}searchmeter_recent`
 					ORDER BY `datetime` DESC LIMIT ".TGUY_SM_HISTORY_SIZE.", 1");
 				$query = "DELETE FROM `{$table_prefix}searchmeter_recent` WHERE `datetime` < '$dateZero'";
-				$success = mysql_query($query);
+				$success = $wpdb->query($query);
 			}
 		}
-		// Save search summary into the DB. Usually this will be a new query, so try to insert first
+		// Save search summary into the DB. Usually this will be a new row, so try to insert first
 		$query = "INSERT INTO `{$table_prefix}searchmeter` (`terms`,`date`,`count`,`last_hits`)
 		VALUES ('$search_terms',CURDATE(),1,$hit_count)";
-		$success = mysql_query($query);
+		$success = $wpdb->query($query);
 		if (!$success) {
 			$query = "UPDATE `{$table_prefix}searchmeter` SET
 				`count` = `count` + 1,
 				`last_hits` = $hit_count
 			WHERE `terms` = '$search_terms' AND `date` = CURDATE()";
-			$success = mysql_query($query);
+			$success = $wpdb->query($query);
 			// Table should always exist, so don't try to create again
 		}
 	}
@@ -672,28 +663,31 @@ function tguy_sm_options_page() {
 
 			<input type="hidden" name="submitted" value="1" />
 
-			<fieldset class="options">
-				<ul>
-					<li>
-					<label for="sm_details_verbose">
-						<input type="checkbox" id="sm_details_verbose" name="sm_details_verbose" <?php echo ($options['sm_details_verbose']==true?"checked=\"checked\"":"") ?> />
-						Keep detailed information about recent searches (taken from HTTP headers)
-					</label>
-					</li>
-					<li>
-					<label for="sm_disable_donation">
-						<input type="checkbox" id="sm_disable_donation" name="sm_disable_donation" <?php echo ($options['sm_disable_donation']==true?"checked=\"checked\"":"") ?> />
-						Hide the &#8220;Do you find this plugin useful?&#8221; box
-					</label>
-					</li>
-				</ul>
-			</fieldset>
+			<table class="form-table">
+				<tr>
+					<th class="th-full" scope="row">
+						<label for="sm_details_verbose">
+							<input type="checkbox" id="sm_details_verbose" name="sm_details_verbose" <?php echo ($options['sm_details_verbose']==true?"checked=\"checked\"":"") ?> />
+							Keep detailed information about recent searches (taken from HTTP headers)
+						</label>
+					</th>
+				</tr>
+				<tr>
+					<th class="th-full" scope="row">
+						<label for="sm_disable_donation">
+							<input type="checkbox" id="sm_disable_donation" name="sm_disable_donation" <?php echo ($options['sm_disable_donation']==true?"checked=\"checked\"":"") ?> />
+							Hide the &#8220;Do you find this plugin useful?&#8221; box
+						</label>
+					</th>
+				</tr>
+			</table>
+
 			<p class="submit">
 			<input type="submit" name="Submit" value="Save changes &raquo;" />
 			</p>
 		</form>
 
-		<h2>Reset statistics</h2>
+		<h3>Reset statistics</h3>
 
 		<p>Click this button to reset all search statistics. This will delete all information about previous searches.</p>
 
@@ -703,12 +697,12 @@ function tguy_sm_options_page() {
 				wp_nonce_field('search-meter-reset-stats');
 			}
 			?>
-			<p class="submit">
-			<input type="submit" name="tguy_sm_reset" value="Reset statistics &raquo;" onclick="return confirm('You are about to delete all saved search statistics.\n  \'Cancel\' to stop, \'OK\' to delete.');" />
+			<p>
+			<input type="submit" name="tguy_sm_reset" value="Reset statistics &raquo;" class="button-secondary delete" onclick="return confirm('You are about to delete all saved search statistics.\n  \'Cancel\' to stop, \'OK\' to delete.');" />
 			</p>
 		</form>
 
-		<h2>Notes</h2>
+		<h3>Notes</h3>
 
 		<p>To see your search statistics, go to your <a href="<?php bloginfo('wpurl'); ?>/wp-admin/index.php?page=search-meter.php">Search Meter Statistics page</a>.</p>
 
@@ -746,6 +740,7 @@ amount by clicking here. Thank you.</p>
 }
 
 function tguy_sm_show_donation_button() {
+// I wish PayPal offered a simple little REST-style URL instead of this monstrosity
 ?><form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="margin:0; padding:0;"
 ><input name="cmd" value="_s-xclick" type="hidden" style="margin:0; padding:0;"
 /><input src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" name="submit" alt="Make payments with PayPal - it's fast, free and secure!" border="0" type="image" style="margin:0; padding:0;"
