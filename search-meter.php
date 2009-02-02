@@ -2,7 +2,7 @@
 /*
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
-Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the <a href="index.php?page=search-meter.php">Search Meter Statistics</a> page to see what your visitors are searching for on your blog.
+Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
 Version: 2.3+
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
@@ -29,7 +29,7 @@ INSTRUCTIONS
 Thanks to Kaufman (http://www.terrik.com/wordpress/) and the many others who have offered suggestions.
 
 
-Copyright (C) 2005-08 Bennett McElwee (bennett at thunderguy dotcom)
+Copyright (C) 2005-09 Bennett McElwee (bennett at thunderguy dotcom)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General Public
@@ -424,7 +424,6 @@ function tguy_sm_summary_page() {
 	echo "<!-- Search Meter: deleted $result old rows -->\n";
 	?>
 	<div class="wrap">
-		<?php if (!$is_disable_donation) { tguy_sm_show_donation_bar(); } ?>
 
 		<ul id="search_meter_menu">
 		<li class="current">Summary</li>
@@ -471,10 +470,12 @@ function tguy_sm_summary_page() {
 		<h2>Notes</h2>
 
 		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY_LEVEL)) : ?>
-		<p>To manage your search statistics, go to your <a href="<?php bloginfo('wpurl'); ?>/wp-admin/options-general.php?page=search-meter.php">Search Meter Options page</a>.</p>
+		<p>To manage your search statistics, go to the <strong>Settings</strong> section and choose <strong>Search Meter</strong>.</p>
 		<?php endif; ?>
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
+
+		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_message(); } ?>
 
 	</div>
 	<?php
@@ -547,7 +548,6 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 	$this_url_recent_arg = '&amp;recent=' . $max_lines;
 	?>
 	<div class="wrap">
-		<?php if (!$is_disable_donation) { tguy_sm_show_donation_bar(); } ?>
 
 		<ul id="search_meter_menu">
 		<li><a href="<?php echo $this_url_base ?>">Summary</a></li>
@@ -621,10 +621,12 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 		<h2>Notes</h2>
 
 		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY_LEVEL)) : ?>
-		<p>To manage your search statistics, go to your <a href="<?php bloginfo('wpurl'); ?>/wp-admin/options-general.php?page=search-meter.php">Search Meter Options page</a>.</p>
+		<p>To manage your search statistics, go to the <strong>Settings</strong> section and choose <strong>Search Meter</strong>.</p>
 		<?php endif; ?>
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
+
+		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_message(); } ?>
 
 	</div>
 	<?php
@@ -653,7 +655,6 @@ function tguy_sm_options_page() {
 
 		<h2>Search Meter Options</h2>
 
-		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_box(); } ?>
 		<form name="searchmeter" action="<?php echo $action_url; ?>" method="post">
 			<?php
 			if (function_exists('wp_nonce_field')) {
@@ -704,38 +705,25 @@ function tguy_sm_options_page() {
 
 		<h3>Notes</h3>
 
-		<p>To see your search statistics, go to your <a href="<?php bloginfo('wpurl'); ?>/wp-admin/index.php?page=search-meter.php">Search Meter Statistics page</a>.</p>
+		<p>To see your search statistics, go to the <strong>Dashboard</strong> and choose <strong>Search Meter</strong>.</p>
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. At that page, you can also offer suggestions, request new features or report problems.</p>
+
+		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_message(); } ?>
 
 	</div>
 	<?php
 }
 
-function tguy_sm_show_donation_bar() {
+function tguy_sm_show_donation_message() {
 ?>
-<div style="width:30%; background:#EEEEEE none repeat scroll 0%; border:1px solid #6699CC; float:right; font-size:90%; margin:0 0 -20px 0; padding:0;"><div style="margin:0; padding:0 0 0 2ex; float: right;">
+<p><div style="margin: 0; padding: 0 2ex 0.25ex 0; float: left;">
 <?php tguy_sm_show_donation_button() ?>
 </div>
-<p style="margin:0; padding:0.5em">Do you find this plugin useful?</p>
-
-</div>
-<?php
-}
-
-function tguy_sm_show_donation_box() {
-?>
-<div style="width:30%; background:#EEEEEE none repeat scroll 0%; border:1px solid #6699CC; float:right; font-size:90%; margin:0 0 1em 1em; padding:1em;">
-
-<div style="margin: 0; padding: 0 2ex 0.25ex 0; float: left;">
-<?php tguy_sm_show_donation_button() ?>
-</div>
-<p style="margin: 0; padding: 0"><strong>Do you find this plugin useful?</strong><br />
+<strong>Do you find this plugin useful?</strong><br />
 I write WordPress plugins because I enjoy doing it, but it does take up a lot
 of my time. If you think this plugin is useful, please consider donating some appropriate
-amount by clicking here. Thank you.</p>
-
-</div>
+amount by clicking the Donate button. Thank you.</p>
 <?php
 }
 
@@ -748,4 +736,3 @@ function tguy_sm_show_donation_button() {
 " type="hidden" style="margin:0; padding:0;"
 /></form><?php
 }
-?>
