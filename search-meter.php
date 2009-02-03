@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.3+
+Version: 2.4
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
@@ -13,14 +13,14 @@ $Revision: 113 $
 INSTRUCTIONS
 
 1. Copy this file into the plugins directory in your WordPress installation
-   (wp-content/plugins).
-2. Log in to WordPress administration. Go to the Plugins page and Activate
+   (wp-content/plugins/search-meter/search-meter.php).
+2. Log in to WordPress administration. Go to the Plugins section and activate
    this plugin.
 
 * To see search statistics, log in to WordPress Admin, go to the Dashboard
-  page and click Search Meter.
-* To control search statistics, log in to WordPress Admin, go to the Options
-  page and click Search Meter.
+  section and click Search Meter.
+* To control search statistics, log in to WordPress Admin, go to the Settings
+  section and click Search Meter.
 * To display recent and popular searches, use the Recent Searches and
   Popular Searches widgets, or the sm_list_popular_searches() and
   sm_list_recent_searches() template tags.
