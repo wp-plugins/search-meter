@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.4
+Version: 2.5
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
@@ -251,13 +251,6 @@ function tguy_sm_save_search(&$posts) {
 		$query = "INSERT INTO `{$table_prefix}searchmeter_recent` (`terms`,`datetime`,`hits`,`details`)
 		VALUES ('$search_string',NOW(),$hit_count,'$details')";
 		$success = $wpdb->query($query);
-		// If it failed, maybe the table was never created.
-		// Try to create it and then try again.
-		if (!$success) {
-			if (tguy_sm_create_recent_table()) {
-				$success = $wpdb->query($query);
-			}
-		}
 		if ($success) {
 			// Ensure table never grows larger than TGUY_SM_HISTORY_SIZE + 100
 			$rowcount = $wpdb->get_var(
@@ -276,14 +269,16 @@ function tguy_sm_save_search(&$posts) {
 		// Save search summary into the DB. Usually this will be a new row, so try to insert first
 		$query = "INSERT INTO `{$table_prefix}searchmeter` (`terms`,`date`,`count`,`last_hits`)
 		VALUES ('$search_terms',CURDATE(),1,$hit_count)";
+		// Temporarily suppress errors, as this query is expected to fail on duplicate searches in a single day. Thanks to James Collins.
+		$suppress = $wpdb->suppress_errors();
 		$success = $wpdb->query($query);
+		$wpdb->suppress_errors($suppress);
 		if (!$success) {
 			$query = "UPDATE `{$table_prefix}searchmeter` SET
 				`count` = `count` + 1,
 				`last_hits` = $hit_count
 			WHERE `terms` = '$search_terms' AND `date` = CURDATE()";
 			$success = $wpdb->query($query);
-			// Table should always exist, so don't try to create again
 		}
 	}
 	return $posts;
@@ -333,7 +328,6 @@ function tguy_sm_create_recent_table() {
 
 function tguy_sm_reset_stats() {
 	global $wpdb, $table_prefix;
-	tguy_sm_create_recent_table();
 	// Delete all records
 	$wpdb->query("DELETE FROM `{$table_prefix}searchmeter`");
 	$wpdb->query("DELETE FROM `{$table_prefix}searchmeter_recent`");
@@ -539,7 +533,6 @@ function tguy_sm_summary_table($results, $days, $do_include_successes = false) {
 
 function tguy_sm_recent_page($max_lines, $do_show_details) {
 	global $wpdb, $table_prefix;
-	tguy_sm_create_recent_table();
 
 	$options = get_option('tguy_search_meter');
 	$is_details_available = $options['sm_details_verbose'];
@@ -576,11 +569,6 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 			ORDER BY `datetime` DESC, `terms` ASC
 			LIMIT $max_lines";
 		$results = $wpdb->get_results($query);
-		if (!$results) {
-			if (tguy_sm_create_recent_table()) {
-				$results = $wpdb->get_results($query);
-			}
-		}
 		if (count($results)) {
 			?>
 			<table cellpadding="3" cellspacing="2">
