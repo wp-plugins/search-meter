@@ -1,10 +1,10 @@
 === Search Meter ===
 Contributors: bennettmcelwee
 Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
-Tags: search, statistics, widget, admin
+Tags: search, meter, search-meter, statistics, widget, admin
 Requires at least: 1.5
 Tested up to: 2.7
-Stable tag: 2.3
+Stable tag: 2.5
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.
 
@@ -18,17 +18,17 @@ Search Meter installs easily and requires no configuration. Just install it, act
 
 = View Statistics =
 
-To see your search statistics, Log in to WordPress Admin, go to the Dashboard page and click Search Meter. You'll see the most popular searches in the last day, week and month. Click "Last 100 Searches" or "Last 500 Searches" to see lists of all recent searches.
+To see your search statistics, Log in to WordPress Admin, go to the Dashboard section and click Search Meter. You'll see the most popular searches in the last day, week and month. Click "Last 100 Searches" or "Last 500 Searches" to see lists of all recent searches.
 
 = Manage Statistics =
 
-There are a couple of management option available if you go to the Options page and click Search Meter. Use the Reset Statistics button to clear all past search statistics; Search Meter will immediately start gathering fresh statistics. If you're technically-minded, you might want to check the "Keep detailed information" checkbox to make Search Meter save technical information about every search (the information is taken from the HTTP headers).
+There are a couple of management option available if you go to the Settings section and click Search Meter. Use the Reset Statistics button to clear all past search statistics; Search Meter will immediately start gathering fresh statistics. If you're technically-minded, you might want to check the "Keep detailed information" checkbox to make Search Meter save technical information about every search (the information is taken from the HTTP headers).
 
 = Popular and Recent Searches =
 
 The Popular Searches widget displays a list of the most popular successful search terms on your blog during the last 30 days. The Recent Searches widget displays a simple list of the most recent successful search terms. In both cases, the search terms in the lists are hyperlinked to the actual search results; readers can click the search term to show the results for that search. Also, you can configure the maximum number of searches that each widget will display.
 
-To add these widgets to your sidebar, log in to WordPress Admin, go to the Presentation page and click Widgets. You can drag the appropriate widget to the sidebar of your choice, and click the Configure button to set the number of searches to display.
+To add these widgets to your sidebar, log in to WordPress Admin, go to the Appearance section and click Widgets. You can drag the appropriate widget to the sidebar of your choice, and click the Edit button to set the number of searches to display.
 
 Widget support depends on the version of WordPress and the theme you're using. In some cases you will not be able to use the widgets. In any case, you can always use the Search Meter template tags to display the same information. You'll need to edit your theme to use them.
 
@@ -51,8 +51,8 @@ Show a simple list of the 5 most recent successful search terms, hyperlinked to 
 
 == Installation ==
 
-1. Upload `search-meter.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Just install the plugin as usual - in WordPress 2.7 and higher you can simply upload the search-meter.zip file. For older version, unzip & upload to the /wp-content/plugins/search-meter directory
+1. Activate the plugin through the 'Plugins' section in WordPress
 
 == Frequently Asked Questions ==
 
