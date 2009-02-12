@@ -7,7 +7,7 @@ Version: 2.5
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
-$Revision: 113 $
+$Revision$
 
 
 INSTRUCTIONS
@@ -643,7 +643,7 @@ function tguy_sm_options_page() {
 
 		<h2>Search Meter Options</h2>
 
-		<form name="searchmeter" action="<?php echo $action_url; ?>" method="post">
+		<form name="searchmeter" action="" method="post">
 			<?php
 			if (function_exists('wp_nonce_field')) {
 				wp_nonce_field('search-meter-update-options_all');
@@ -672,7 +672,7 @@ function tguy_sm_options_page() {
 			</table>
 
 			<p class="submit">
-			<input type="submit" name="Submit" value="Save changes &raquo;" />
+				<input name="Submit" class="button-primary" value="Save Changes" type="submit">
 			</p>
 		</form>
 
@@ -680,14 +680,14 @@ function tguy_sm_options_page() {
 
 		<p>Click this button to reset all search statistics. This will delete all information about previous searches.</p>
 
-		<form name="tguy_sm_admin" action="<?php echo $action_url; ?>" method="post">
+		<form name="tguy_sm_admin" action="" method="post">
 			<?php
 			if (function_exists('wp_nonce_field')) {
 				wp_nonce_field('search-meter-reset-stats');
 			}
 			?>
-			<p>
-			<input type="submit" name="tguy_sm_reset" value="Reset statistics &raquo;" class="button-secondary delete" onclick="return confirm('You are about to delete all saved search statistics.\n  \'Cancel\' to stop, \'OK\' to delete.');" />
+			<p class="submit">
+				<input name="tguy_sm_reset" class="button-secondary delete" value="Reset Statistics" type="submit" onclick="return confirm('You are about to delete all saved search statistics.\n  \'Cancel\' to stop, \'OK\' to delete.');" />
 			</p>
 		</form>
 
