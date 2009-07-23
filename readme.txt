@@ -76,7 +76,26 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 = 2.4 =
 * Fix the links to the Statistics and Options pages, which broke in WordPress 2.7.
-* Add donation buttons, with an option to hide them. (Thanks for your consideration.)
 
-= Earlier versions =
-* [Contact the author](http://www.thunderguy.com/semicolon/contact/) for details
+= 2.3 =
+* Improve widget display and add controls to specify the number of searches to show
+* Add option to hide donation buttons
+
+= 2.2 =
+* Add widgets for Recent Searches and Popular Searches
+* Fix table creation problem on WordPress 2.2.1
+* Add donation buttons (thanks for your consideration)
+
+= 2.1 =
+* Improve search count accuracy
+
+= 2.0 =
+* Add Recent Searches page and template tag
+* Make search counts more accurate: correctly count multi-page searches and searches with no referer [sic]
+* Popular Searches tag allows number of results to be specified.
+
+= 1.1 =
+* Various improvements
+
+= 1.0 =
+* Initial public release
