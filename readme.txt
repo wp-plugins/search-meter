@@ -3,7 +3,7 @@ Contributors: bennettmcelwee
 Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Tags: search, meter, search-meter, statistics, widget, admin
 Requires at least: 1.5
-Tested up to: 2.8
+Tested up to: 2.8.4
 Stable tag: 2.5
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.

@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.5
+Version: 2.5+
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
@@ -206,7 +206,7 @@ function tguy_sm_register_widgets() {
 // Normally we only record the first time.
 $tguy_sm_action_count = 0;
 
-function tguy_sm_save_search(&$posts) {
+function tguy_sm_save_search($posts) {
 // Check if the request is a search, and if so then save details.
 // This is a filter but does not change the posts.
 	global $wpdb, $wp_query, $table_prefix, $tguy_sm_action_count;
@@ -294,13 +294,15 @@ function tguy_sm_create_summary_table() {
 		} else { // Wordpress 2.2 or earlier
 			require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
 		}
-		dbDelta("CREATE TABLE `{$table_name}` (
+		dbDelta("
+			CREATE TABLE `{$table_name}` (
 				`terms` VARCHAR(50) NOT NULL,
 				`date` DATE NOT NULL,
 				`count` INT(11) NOT NULL,
 				`last_hits` INT(11) NOT NULL,
 				PRIMARY KEY (`terms`,`date`)
-				);
+			)
+			CHARACTER SET utf8 COLLATE utf8_general_ci;
 			");
 	}
 }
@@ -315,13 +317,15 @@ function tguy_sm_create_recent_table() {
 		} else { // Wordpress 2.2 or earlier
 			require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
 		}
-		dbDelta("CREATE TABLE `{$table_name}` (
+		dbDelta("
+			CREATE TABLE `{$table_name}` (
 				`terms` VARCHAR(50) NOT NULL,
 				`datetime` DATETIME NOT NULL,
 				`hits` INT(11) NOT NULL,
 				`details` TEXT NOT NULL,
 				KEY `datetimeindex` (`datetime`)
-				);
+			)
+			CHARACTER SET utf8 COLLATE utf8_general_ci;
 			");
 	}
 }
