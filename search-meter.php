@@ -131,7 +131,6 @@ if (function_exists('register_activation_hook')) {
 } else {
 	add_action('init', 'tguy_sm_init');
 }
-add_action('init', 'tguy_sm_register_widgets');
 add_filter('the_posts', 'tguy_sm_save_search', 20); // run after other plugins
 add_action('admin_head', 'tguy_sm_stats_css');
 add_action('admin_menu', 'tguy_sm_add_admin_pages');
@@ -147,59 +146,148 @@ function tguy_sm_init() {
 
 // Widgets
 
-function sm_list_popular_searches_widget($args) {
-	$options = get_option('tguy_search_meter');
-	$number = sm_constrain_widget_search_count((int)$options['popular-searches-number']);
-	sm_list_popular_searches('<h2 class="widgettitle">Popular Searches</h2>', '', $number);
-}
-
-function sm_list_popular_searches_control() {
-	$options = get_option('tguy_search_meter');
-	if ($_POST["popular-searches-submit"]) {
-		$options['popular-searches-number'] = (int) $_POST["popular-searches-number"];
-		update_option('tguy_search_meter', $options);
+if (version_compare($wp_version, '2.8', '>=')) {
+	add_action('widgets_init', 'tguy_sm_register_widgets');
+	function tguy_sm_register_widgets() {
+		register_widget('SM_Popular_Searches_Widget');
+		register_widget('SM_Recent_Searches_Widget');
 	}
-	$number = sm_constrain_widget_search_count((int)$options['popular-searches-number']);
-?>
-			<p>This widget shows the most popular successful search terms in the last month.</p>
-			<p><label for="popular-searches-number"><?php _e('Number of searches to show:'); ?> <input style="width: 5ex; text-align: center;" id="popular-searches-number" name="popular-searches-number" type="text" value="<?php echo $number; ?>" /></label></p>
-			<p><em>Powered by Search Meter</em></p>
-			<input type="hidden" id="popular-searches-submit" name="popular-searches-submit" value="1" />
-<?php
-}
 
-function sm_list_recent_searches_widget($args) {
-	$options = get_option('tguy_search_meter');
-	$number = sm_constrain_widget_search_count((int)$options['recent-searches-number']);
-	sm_list_recent_searches('<h2 class="widgettitle">Recent Searches</h2>', '', $number);
-}
+	class SM_Popular_Searches_Widget extends WP_Widget {
+	   	function SM_Popular_Searches_Widget() {
+		    $widget_ops = array('classname' => 'widget_search_meter', 'description' => __( "A list of the most popular successful searches in the last month"));
+		    $this->WP_Widget('popular_searches', __('Popular Searches'), $widget_ops);
+	    }
 
-function sm_list_recent_searches_control() {
-	$options = get_option('tguy_search_meter');
-	if ($_POST["recent-searches-submit"]) {
-		$options['recent-searches-number'] = (int) $_POST["recent-searches-number"];
-		update_option('tguy_search_meter', $options);
+		function widget($args, $instance) {
+			extract($args);
+			$title = apply_filters('widget_title', empty($instance['popular-searches-title']) ? __('Popular Searches') : $instance['popular-searches-title']);
+			$count = (int) (empty($instance['popular-searches-number']) ? 5 : $instance['popular-searches-number']);
+			
+			echo $before_widget;
+			if ($title) {
+				echo $before_title . $title . $after_title;
+			}
+			sm_list_popular_searches('', '', sm_constrain_widget_search_count($count));
+			echo $after_widget;
+		}
+			
+		function update($new_instance, $old_instance){
+			$instance = $old_instance;
+			$instance['popular-searches-title'] = strip_tags(stripslashes($new_instance['popular-searches-title']));
+			$instance['popular-searches-number'] = (int) ($new_instance['popular-searches-number']);
+			return $instance;
+		}
+		
+		function form($instance){
+			//Defaults
+			$instance = wp_parse_args((array) $instance, array('popular-searches-title' => 'Popular Searches', 'popular-searches-number' => 5));
+			
+			$title = htmlspecialchars($instance['popular-searches-title']);
+			$count = htmlspecialchars($instance['popular-searches-number']);
+			
+			# Output the options
+			echo '<p><label for="' . $this->get_field_name('popular-searches-title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('popular-searches-title') . '" type="text" value="' . $title . '" /></label></p>';
+			echo '<p><label for="' . $this->get_field_name('popular-searches-number') . '">' . __('Number of searches to show:') . ' <input id="' . $this->get_field_id('popular-searches-number') . '" name="' . $this->get_field_name('popular-searches-number') . '" type="text" value="' . $count . '" size="3" /></label></p>';
+			echo '<p><small>Powered by Search Meter</small></p>';
+		}
 	}
-	$number = sm_constrain_widget_search_count((int)$options['recent-searches-number']);
-?>
-			<p>This widget shows the most recent successful search terms.</p>
-			<p><label for="recent-searches-number"><?php _e('Number of searches to show:'); ?> <input style="width: 5ex; text-align: center;" id="recent-searches-number" name="recent-searches-number" type="text" value="<?php echo $number; ?>" /></label></p>
-			<p><em>Powered by Search Meter</em></p>
-			<input type="hidden" id="recent-searches-submit" name="recent-searches-submit" value="1" />
-<?php
+
+	class SM_Recent_Searches_Widget extends WP_Widget {
+	   	function SM_Recent_Searches_Widget() {
+		    $widget_ops = array('classname' => 'widget_search_meter', 'description' => __( "A list of the most recent successful searches on your blog"));
+		    $this->WP_Widget('recent_searches', __('Recent Searches'), $widget_ops);
+	    }
+
+		function widget($args, $instance) {
+			extract($args);
+			$title = apply_filters('widget_title', empty($instance['recent-searches-title']) ? __('Recent Searches') : $instance['recent-searches-title']);
+			$count = (int) (empty($instance['recent-searches-number']) ? 5 : $instance['recent-searches-number']);
+			
+			echo $before_widget;
+			if ($title) {
+				echo $before_title . $title . $after_title;
+			}
+			sm_list_recent_searches('', '', sm_constrain_widget_search_count($count));
+			echo $after_widget;
+		}
+			
+		function update($new_instance, $old_instance){
+			$instance = $old_instance;
+			$instance['recent-searches-title'] = strip_tags(stripslashes($new_instance['recent-searches-title']));
+			$instance['recent-searches-number'] = (int) ($new_instance['recent-searches-number']);
+			return $instance;
+		}
+		
+		function form($instance){
+			//Defaults
+			$instance = wp_parse_args((array) $instance, array('recent-searches-title' => 'Recent Searches', 'recent-searches-number' => 5));
+			
+			$title = htmlspecialchars($instance['recent-searches-title']);
+			$count = htmlspecialchars($instance['recent-searches-number']);
+			
+			# Output the options
+			echo '<p><label for="' . $this->get_field_name('recent-searches-title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('recent-searches-title') . '" type="text" value="' . $title . '" /></label></p>';
+			echo '<p><label for="' . $this->get_field_name('recent-searches-number') . '">' . __('Number of searches to show:') . ' <input id="' . $this->get_field_id('recent-searches-number') . '" name="' . $this->get_field_name('recent-searches-number') . '" type="text" value="' . $count . '" size="3" /></label></p>';
+			echo '<p><small>Powered by Search Meter</small></p>';
+		}
+	}
+} else {
+	add_action('init', 'tguy_sm_register_widgets');
+	function tguy_sm_register_widgets() {
+		if (function_exists('register_sidebar_widget') ) {
+			register_sidebar_widget('Recent Searches', 'sm_list_recent_searches_widget', 'recent_searches');
+			register_sidebar_widget('Popular Searches', 'sm_list_popular_searches_widget', 'popular_searches');
+			register_widget_control('Recent Searches', 'sm_list_recent_searches_control', '', '120px');
+			register_widget_control('Popular Searches', 'sm_list_popular_searches_control', '', '120px');
+		}
+	}
+
+	function sm_list_popular_searches_widget($args) {
+		$options = get_option('tguy_search_meter');
+		$number = sm_constrain_widget_search_count((int)$options['popular-searches-number']);
+		sm_list_popular_searches('<h2 class="widgettitle">Popular Searches</h2>', '', $number);
+	}
+	
+	function sm_list_popular_searches_control() {
+		$options = get_option('tguy_search_meter');
+		if ($_POST["popular-searches-submit"]) {
+			$options['popular-searches-number'] = (int) $_POST["popular-searches-number"];
+			update_option('tguy_search_meter', $options);
+		}
+		$number = sm_constrain_widget_search_count((int)$options['popular-searches-number']);
+	?>
+				<p>This widget shows the most popular searches in the last month. Only successful searches are listed.</p>
+				<p><label for="popular-searches-number"><?php _e('Number of searches to show:'); ?> <input style="width: 5ex; text-align: center;" id="popular-searches-number" name="popular-searches-number" type="text" value="<?php echo $number; ?>" /></label></p>
+				<p><em>Powered by Search Meter</em></p>
+				<input type="hidden" id="popular-searches-submit" name="popular-searches-submit" value="1" />
+	<?php
+	}
+	
+	function sm_list_recent_searches_widget($args) {
+		$options = get_option('tguy_search_meter');
+		$number = sm_constrain_widget_search_count((int)$options['recent-searches-number']);
+		sm_list_recent_searches('<h2 class="widgettitle">Recent Searches</h2>', '', $number);
+	}
+	
+	function sm_list_recent_searches_control() {
+		$options = get_option('tguy_search_meter');
+		if ($_POST["recent-searches-submit"]) {
+			$options['recent-searches-number'] = (int) $_POST["recent-searches-number"];
+			update_option('tguy_search_meter', $options);
+		}
+		$number = sm_constrain_widget_search_count((int)$options['recent-searches-number']);
+	?>
+				<p>This widget shows what people have recently searched for. Only successful searches are listed.</p>
+				<p><label for="recent-searches-number"><?php _e('Number of searches to show:'); ?> <input style="width: 5ex; text-align: center;" id="recent-searches-number" name="recent-searches-number" type="text" value="<?php echo $number; ?>" /></label></p>
+				<p><em>Powered by Search Meter</em></p>
+				<input type="hidden" id="recent-searches-submit" name="recent-searches-submit" value="1" />
+	<?php
+	}
 }
 
 function sm_constrain_widget_search_count($number) {
 	return max(1, min((int)$number, 100));
-}
-
-function tguy_sm_register_widgets() {
-	if (function_exists('register_sidebar_widget') ) {
-		register_sidebar_widget('Recent Searches', 'sm_list_recent_searches_widget', 'recent_searches');
-		register_sidebar_widget('Popular Searches', 'sm_list_popular_searches_widget', 'popular_searches');
-		register_widget_control('Recent Searches', 'sm_list_recent_searches_control', '', '120px');
-		register_widget_control('Popular Searches', 'sm_list_popular_searches_control', '', '120px');
-	}
 }
 
 // Keep track of how many times SM has been called for this request.
