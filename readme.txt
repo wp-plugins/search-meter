@@ -32,9 +32,9 @@ If you have an older version of WordPress, download and unzip the search-meter.z
 
 = Widgets: Popular and Recent Searches =
 
-The Popular Searches widget displays a list of the most popular successful search terms on your blog during the last 30 days. The Recent Searches widget displays a simple list of the most recent successful search terms. In both cases, the search terms in the lists are hyperlinked to the actual search results; readers can click the search term to show the results for that search. Also, you can configure the maximum number of searches that each widget will display.
+The Popular Searches widget displays a list of the most popular successful search terms on your blog during the last 30 days. The Recent Searches widget displays a simple list of the most recent successful search terms. In both cases, the search terms in the lists are hyperlinked to the actual search results; readers can click the search term to show the results for that search. You can configure the title of each widget, and the maximum number of searches that each widget will display.
 
-To add these widgets to your sidebar, log in to WordPress Admin, go to the Appearance section and click Widgets. You can drag the appropriate widget to the sidebar of your choice, and click the Edit button to set the number of searches to display.
+To add these widgets to your sidebar, log in to WordPress Admin, go to the Appearance section and click Widgets. You can drag the appropriate widget to the sidebar of your choice, and set the title and the  number of searches to display.
 
 = Template Tags =
 
@@ -68,6 +68,11 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 1. The Search Meter administration interface, showing some of the reports available.
 
 == Changelog ==
+
+= 2.6 =
+* Use UTF8 when creating tables
+* Fix PHP 5.3 incompatibility
+* Widgets now conform to WordPress 2.8 standards
 
 = 2.5 =
 * Improve formatting on the Options page
