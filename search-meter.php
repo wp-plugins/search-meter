@@ -78,7 +78,7 @@ define('TGUY_SM_OPTIONS_CAPABILITY_LEVEL', 10);
 
 function sm_list_popular_searches($before = '', $after = '', $count = 5) {
 // List the most popular searches in the last month in decreasing order of popularity.
-	global $wpdb, $table_prefix;
+	global $wpdb, $table_prefix, $wp_rewrite;
 	$count = intval($count);
 	// This is a simpler query than the report query, and may produce
 	// slightly different results. This query returns searches if they
@@ -96,8 +96,9 @@ function sm_list_popular_searches($before = '', $after = '', $count = 5) {
 		LIMIT $count");
 	if (count($results)) {
 		echo "$before\n<ul>\n";
+		$home_url_slash = get_settings('home') . '/';
 		foreach ($results as $result) {
-			echo '<li><a href="'. get_settings('home') . '/search/' . urlencode($result->terms) . '">'. htmlspecialchars($result->terms) .'</a></li>'."\n";
+			echo '<li><a href="'. $home_url_slash . sm_get_relative_search_url($result->terms) . '">'. htmlspecialchars($result->terms) .'</a></li>'."\n";
 		}
 		echo "</ul>\n$after\n";
 	}
@@ -116,11 +117,28 @@ function sm_list_recent_searches($before = '', $after = '', $count = 5) {
 		LIMIT $count");
 	if (count($results)) {
 		echo "$before\n<ul>\n";
+		$home_url_slash = get_settings('home') . '/';
 		foreach ($results as $result) {
-			echo '<li><a href="'. get_settings('home') . '/search/' . urlencode($result->terms) . '">'. htmlspecialchars($result->terms) .'</a></li>'."\n";
+			echo '<li><a href="'. $home_url_slash . sm_get_relative_search_url($result->terms) . '">'. htmlspecialchars($result->terms) .'</a></li>'."\n";
 		}
 		echo "</ul>\n$after\n";
 	}
+}
+
+function sm_get_relative_search_url($term) {
+// Output the URL for a search term, relative to the home directory.
+	global $wp_rewrite;
+	$relative_url = null;
+	if ($wp_rewrite->using_permalinks()) {
+		$structure = $wp_rewrite->get_search_permastruct();
+		if (strpos($structure, '%search%') !== false) {
+			$relative_url = str_replace('%search%', urlencode($term), $structure);
+		}
+	}
+	if ( ! $relative_url) {
+		$relative_url =  '?s=' . urlencode($term);
+	}
+	return $relative_url;
 }
 
 

@@ -69,6 +69,10 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
+= 2.6+ =
+* Don't show duplicated recent searches
+* Search links work whether or not fancy permalinks are enabled
+
 = 2.6 =
 * Use UTF8 when creating tables
 * Fix PHP 5.3 incompatibility
