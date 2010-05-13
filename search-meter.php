@@ -66,11 +66,11 @@ define('TGUY_SM_ALLOW_DUPLICATE_SAVES', false);
 // in the details). This will mess up the stats, but could be useful
 // for troubleshooting.
 
-define('TGUY_SM_STATS_CAPABILITY_LEVEL', 1);
-// Minimum user capability level for users to be able to see stats.
+define('TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY', 'publish_posts');
+// Default capability users must have in order to see stats.
 
-define('TGUY_SM_OPTIONS_CAPABILITY_LEVEL', 10);
-// Minimum user capability level for users to be able to set options.
+define('TGUY_SM_OPTIONS_CAPABILITY', 'manage_options');
+// Capability users must have in order to set options.
 
 
 // Template Tags
@@ -445,8 +445,13 @@ function tguy_sm_reset_stats() {
 }
 
 function tguy_sm_add_admin_pages() {
-	add_submenu_page('index.php', 'Search Meter Statistics', 'Search Meter', TGUY_SM_STATS_CAPABILITY_LEVEL, __FILE__, 'tguy_sm_stats_page');
-	add_options_page('Search Meter', 'Search Meter', TGUY_SM_OPTIONS_CAPABILITY_LEVEL, __FILE__, 'tguy_sm_options_page');
+	$options = get_option('tguy_search_meter');
+	$view_stats_capability = $options['sm_view_stats_capability'];
+	if ($view_stats_capability == '') {
+		$view_stats_capability = TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY;
+	}
+	add_submenu_page('index.php', 'Search Meter Statistics', 'Search Meter', $view_stats_capability, __FILE__, 'tguy_sm_stats_page');
+	add_options_page('Search Meter', 'Search Meter', TGUY_SM_OPTIONS_CAPABILITY, __FILE__, 'tguy_sm_options_page');
 }
 
 
@@ -574,7 +579,7 @@ function tguy_sm_summary_page() {
 
 		<h2>Notes</h2>
 
-		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY_LEVEL)) : ?>
+		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) : ?>
 		<p>To manage your search statistics, go to the <strong>Settings</strong> section and choose <strong>Search Meter</strong>.</p>
 		<?php endif; ?>
 
@@ -719,7 +724,7 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 
 		<h2>Notes</h2>
 
-		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY_LEVEL)) : ?>
+		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) : ?>
 		<p>To manage your search statistics, go to the <strong>Settings</strong> section and choose <strong>Search Meter</strong>.</p>
 		<?php endif; ?>
 
@@ -739,6 +744,7 @@ function tguy_sm_options_page() {
 	if (isset($_POST['submitted'])) {
 		check_admin_referer('search-meter-update-options_all');
 		$options = get_option('tguy_search_meter');
+		$options['sm_view_stats_capability']  = ($_POST['sm_view_stats_capability']);
 		$options['sm_details_verbose']  = (bool)($_POST['sm_details_verbose']);
 		$options['sm_disable_donation'] = (bool)($_POST['sm_disable_donation']);
 		update_option('tguy_search_meter', $options);
@@ -749,6 +755,10 @@ function tguy_sm_options_page() {
 		echo '<div id="message" class="updated fade"><p><strong>Statistics have been reset.</strong></p></div>';
 	}
 	$options = get_option('tguy_search_meter');
+	$view_stats_capability = $options['sm_view_stats_capability'];
+	if ($view_stats_capability == '') {
+		$view_stats_capability = TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY;
+	}
 	?>
 	<div class="wrap">
 
@@ -765,7 +775,26 @@ function tguy_sm_options_page() {
 
 			<table class="form-table">
 				<tr>
-					<th class="th-full" scope="row">
+					<th scope="row">Show statistics to</th>
+					<td>
+						<fieldset>
+						<label title='Users with "read" capability'>
+							<input type="radio" name="sm_view_stats_capability" value="read"
+								<?php echo ($view_stats_capability=='read'?"checked=\"checked\"":"") ?> />
+							All logged-in users</label><br>
+						<label title='Users with "publish_posts" capability'>
+							<input type="radio" name="sm_view_stats_capability" value="publish_posts" 
+								<?php echo ($view_stats_capability=='publish_posts'?"checked=\"checked\"":"") ?> />
+							Post authors and administrators</label><br>
+						<label title='Users with "manage_options" capability'>
+							<input type="radio" name="sm_view_stats_capability" value="activate_plugins" 
+								<?php echo ($view_stats_capability=='manage_options'?"checked=\"checked\"":"") ?> />
+							Administrators only</label>
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<th class="th-full" scope="row" colspan="2">
 						<label for="sm_details_verbose">
 							<input type="checkbox" id="sm_details_verbose" name="sm_details_verbose" <?php echo ($options['sm_details_verbose']==true?"checked=\"checked\"":"") ?> />
 							Keep detailed information about recent searches (taken from HTTP headers)
@@ -773,7 +802,7 @@ function tguy_sm_options_page() {
 					</th>
 				</tr>
 				<tr>
-					<th class="th-full" scope="row">
+					<th class="th-full" scope="row" colspan="2">
 						<label for="sm_disable_donation">
 							<input type="checkbox" id="sm_disable_donation" name="sm_disable_donation" <?php echo ($options['sm_disable_donation']==true?"checked=\"checked\"":"") ?> />
 							Hide the &#8220;Do you find this plugin useful?&#8221; box

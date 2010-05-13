@@ -3,7 +3,7 @@ Contributors: bennettmcelwee
 Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Tags: search, meter, search-meter, statistics, widget, admin
 Requires at least: 1.5
-Tested up to: 2.8.4
+Tested up to: 2.9.2
 Stable tag: 2.6
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.
@@ -22,7 +22,7 @@ To see your search statistics, Log in to WordPress Admin, go to the Dashboard se
 
 = Manage Statistics =
 
-There are a couple of management option available if you go to the Settings section and click Search Meter. Use the Reset Statistics button to clear all past search statistics; Search Meter will immediately start gathering fresh statistics. If you're technically-minded, you might want to check the "Keep detailed information" checkbox to make Search Meter save technical information about every search (the information is taken from the HTTP headers).
+There are a few management option available if you go to the Settings section and click Search Meter. Use the radio buttons to determine who will be allowed to see the full search statistics. Use the Reset Statistics button to clear all past search statistics; Search Meter will immediately start gathering fresh statistics. If you're technically-minded, you might want to check the "Keep detailed information" checkbox to make Search Meter save technical information about every search (the information is taken from the HTTP headers).
 
 == Installation ==
 
@@ -72,6 +72,7 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 = 2.6+ =
 * Don't show duplicated recent searches
 * Search links work whether or not fancy permalinks are enabled
+* Administrator can decide who is allowed to see full statistics
 
 = 2.6 =
 * Use UTF8 when creating tables
