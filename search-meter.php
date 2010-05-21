@@ -80,17 +80,19 @@ function sm_list_popular_searches($before = '', $after = '', $count = 5) {
 // List the most popular searches in the last month in decreasing order of popularity.
 	global $wpdb, $table_prefix, $wp_rewrite;
 	$count = intval($count);
+	$escaped_filter_regex = sm_get_escaped_filter_regex();
+	$filter_term = ($escaped_filter_regex == "" ? "" : "AND NOT `terms` REGEXP '{$escaped_filter_regex}'");
 	// This is a simpler query than the report query, and may produce
 	// slightly different results. This query returns searches if they
 	// have ever had any hits, even if the last search yielded no hits.
 	// This makes for a more efficient search -- important if this
 	// function will be used in a sidebar.
 	$results = $wpdb->get_results(
-		"SELECT `terms`,
-			SUM( `count` ) AS countsum
+		"SELECT `terms`, SUM(`count`) AS countsum
 		FROM `{$table_prefix}searchmeter`
 		WHERE DATE_SUB( CURDATE( ) , INTERVAL 30 DAY ) <= `date`
 		AND 0 < `last_hits`
+		{$filter_term}
 		GROUP BY `terms`
 		ORDER BY countsum DESC, `terms` ASC
 		LIMIT $count");
@@ -108,10 +110,13 @@ function sm_list_recent_searches($before = '', $after = '', $count = 5) {
 // List the most recent successful searches, ignoring duplicates
 	global $wpdb, $table_prefix;
 	$count = intval($count);
+	$escaped_filter_regex = sm_get_escaped_filter_regex();
+	$filter_term = ($escaped_filter_regex == "" ? "" : "AND NOT `terms` REGEXP '{$escaped_filter_regex}'");
 	$results = $wpdb->get_results(
 		"SELECT `terms`, MAX(`datetime`) `maxdatetime`
 		FROM `{$table_prefix}searchmeter_recent`
 		WHERE 0 < `hits`
+		{$filter_term}
 		GROUP BY `terms`
 		ORDER BY `maxdatetime` DESC
 		LIMIT $count");
@@ -126,7 +131,7 @@ function sm_list_recent_searches($before = '', $after = '', $count = 5) {
 }
 
 function sm_get_relative_search_url($term) {
-// Output the URL for a search term, relative to the home directory.
+// Return the URL for a search term, relative to the home directory.
 	global $wp_rewrite;
 	$relative_url = null;
 	if ($wp_rewrite->using_permalinks()) {
@@ -141,6 +146,24 @@ function sm_get_relative_search_url($term) {
 	return $relative_url;
 }
 
+
+function sm_get_escaped_filter_regex() {
+// Return a regular expression, escaped to go into a DB query, that will match any terms to be filtered out
+	global $sm_escaped_filter_regex, $wpdb;
+	if ( ! isset($sm_escaped_filter_regex)) {
+		$options = get_option('tguy_search_meter');
+		$filter_words = $options['sm_filter_words'];
+		if ($filter_words == "") {
+			$sm_escaped_filter_regex = "";
+		} else {
+			$filter_regex = str_replace(' ', '|', preg_quote($filter_words));
+			$wpdb->escape_by_ref($filter_regex);
+			$sm_escaped_filter_regex = $filter_regex;
+		}
+	}
+	return $sm_escaped_filter_regex;
+}
+$sm_escaped_filter_regex = null;
 
 // Hooks
 
@@ -745,6 +768,11 @@ function tguy_sm_options_page() {
 		check_admin_referer('search-meter-update-options_all');
 		$options = get_option('tguy_search_meter');
 		$options['sm_view_stats_capability']  = ($_POST['sm_view_stats_capability']);
+		$sm_filter_words = $_POST['sm_filter_words'];
+		if (get_magic_quotes_gpc()) {
+			$sm_filter_words = stripslashes($sm_filter_words);
+		}
+		$options['sm_filter_words']  = preg_replace('/\\s+/', ' ', trim($sm_filter_words));
 		$options['sm_details_verbose']  = (bool)($_POST['sm_details_verbose']);
 		$options['sm_disable_donation'] = (bool)($_POST['sm_disable_donation']);
 		update_option('tguy_search_meter', $options);
@@ -790,6 +818,17 @@ function tguy_sm_options_page() {
 							<input type="radio" name="sm_view_stats_capability" value="activate_plugins" 
 								<?php echo ($view_stats_capability=='manage_options'?"checked=\"checked\"":"") ?> />
 							Administrators only</label>
+						</fieldset>
+					</td>
+				</tr>
+				<tr valign="top">
+					<th scope="row">Search filter</th>
+					<td>
+						<fieldset>
+						<label for="sm_filter_words">When a search term contains any of these words, it will be filtered 
+						and will not show up in the Recent Searches or Popular Searches widgets. This will match inside words, 
+						so &#8220;press&#8221; will match &#8220;WordPress&#8221;.</label>
+						<textarea name="sm_filter_words" rows="3" cols="40" id="sm_filter_words" class="large-text code"><?php echo esc_html($options['sm_filter_words']); ?></textarea>
 						</fieldset>
 					</td>
 				</tr>
