@@ -4,7 +4,7 @@ Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpres
 Tags: search, meter, search-meter, statistics, widget, admin
 Requires at least: 2.3
 Tested up to: 2.9.2
-Stable tag: 2.7
+Stable tag: 2.7.1
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.
 
