@@ -22,7 +22,9 @@ To see your search statistics, Log in to WordPress Admin, go to the Dashboard se
 
 = Manage Statistics =
 
-There are a few management option available if you go to the Settings section and click Search Meter. Use the radio buttons to determine who will be allowed to see the full search statistics. Use the Reset Statistics button to clear all past search statistics; Search Meter will immediately start gathering fresh statistics. If you're technically-minded, you might want to check the "Keep detailed information" checkbox to make Search Meter save technical information about every search (the information is taken from the HTTP headers).
+There are a few options available if you go to the Settings section and click Search Meter. Use the radio buttons to determine who will be allowed to see the full search statistics. You can also type in a list of filter words; any search terms containing these words will not show up in the Recent Searches and Popular Searches widgets.
+
+Use the Reset Statistics button to clear all past search statistics; Search Meter will immediately start gathering fresh statistics. If you're technically-minded, you might want to check the "Keep detailed information" checkbox to make Search Meter save technical information about every search (the information is taken from the HTTP headers).
 
 == Installation ==
 
@@ -34,7 +36,9 @@ If you have an older version of WordPress, download and unzip the search-meter.z
 
 The Popular Searches widget displays a list of the most popular successful search terms on your blog during the last 30 days. The Recent Searches widget displays a simple list of the most recent successful search terms. In both cases, the search terms in the lists are hyperlinked to the actual search results; readers can click the search term to show the results for that search. You can configure the title of each widget, and the maximum number of searches that each widget will display.
 
-To add these widgets to your sidebar, log in to WordPress Admin, go to the Appearance section and click Widgets. You can drag the appropriate widget to the sidebar of your choice, and set the title and the  number of searches to display.
+To add these widgets to your sidebar, log in to WordPress Admin, go to the Appearance section and click Widgets. You can drag the appropriate widget to the sidebar of your choice, and set the title and the number of searches to display.
+
+The widgets only display successful searches, so they will only display words that actually appear in your blog. If you still want to prevent some of these words appearing in the widgets, you can add search filter words in the Search Meter settings page.
 
 = Template Tags =
 
