@@ -4,7 +4,7 @@ Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpres
 Tags: search, meter, search-meter, statistics, widget, admin
 Requires at least: 2.3
 Tested up to: 2.9.2
-Stable tag: 2.6
+Stable tag: 2.7
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.
 
@@ -69,12 +69,12 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
-= 2.6+ =
-* Requires WordPress 2.3 or later
+= 2.7 =
 * Don't show duplicated recent searches
+* Add filter list so that search terms with certain words will not show up in recent and popular search lists
 * Search links work whether or not fancy permalinks are enabled
 * Administrator can decide who is allowed to see full statistics
-* Add filter list so that search terms with certain words will not show up in recent and popular search lists
+* Requires WordPress 2.3 or later
 
 = 2.6 =
 * Use UTF8 when creating tables
