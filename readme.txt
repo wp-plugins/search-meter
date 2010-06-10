@@ -2,7 +2,7 @@
 Contributors: bennettmcelwee
 Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Tags: search, meter, search-meter, statistics, widget, admin
-Requires at least: 2.3
+Requires at least: 2.8
 Tested up to: 2.9.2
 Stable tag: 2.7.1
 
@@ -72,6 +72,9 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 1. The Search Meter administration interface, showing some of the reports available.
 
 == Changelog ==
+
+= 2.7.1+ =
+* Requires WP 2.8.
 
 = 2.7 =
 * Don't show duplicated recent searches

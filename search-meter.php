@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.7.1
+Version: 2.7.1+
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
@@ -152,9 +152,9 @@ function sm_get_escaped_filter_regex() {
 	global $sm_escaped_filter_regex, $wpdb;
 	if ( ! isset($sm_escaped_filter_regex)) {
 		$options = get_option('tguy_search_meter');
-		$filter_words = $options['sm_filter_words'];
-		if ($filter_words == "") {
-			$sm_escaped_filter_regex = "";
+		$filter_words = tguy_sm_array_value($options, 'sm_filter_words');
+		if ($filter_words == '') {
+			$sm_escaped_filter_regex = '';
 		} else {
 			$filter_regex = str_replace(' ', '|', preg_quote($filter_words));
 			$wpdb->escape_by_ref($filter_regex);
@@ -188,143 +188,89 @@ function tguy_sm_init() {
 
 // Widgets
 
-if (version_compare($wp_version, '2.8', '>=')) {
-	add_action('widgets_init', 'tguy_sm_register_widgets');
-	function tguy_sm_register_widgets() {
-		register_widget('SM_Popular_Searches_Widget');
-		register_widget('SM_Recent_Searches_Widget');
+add_action('widgets_init', 'tguy_sm_register_widgets');
+function tguy_sm_register_widgets() {
+	register_widget('SM_Popular_Searches_Widget');
+	register_widget('SM_Recent_Searches_Widget');
+}
+
+class SM_Popular_Searches_Widget extends WP_Widget {
+	function SM_Popular_Searches_Widget() {
+		$widget_ops = array('classname' => 'widget_search_meter', 'description' => __( "A list of the most popular successful searches in the last month"));
+		$this->WP_Widget('popular_searches', __('Popular Searches'), $widget_ops);
 	}
 
-	class SM_Popular_Searches_Widget extends WP_Widget {
-	   	function SM_Popular_Searches_Widget() {
-		    $widget_ops = array('classname' => 'widget_search_meter', 'description' => __( "A list of the most popular successful searches in the last month"));
-		    $this->WP_Widget('popular_searches', __('Popular Searches'), $widget_ops);
-	    }
-
-		function widget($args, $instance) {
-			extract($args);
-			$title = apply_filters('widget_title', empty($instance['popular-searches-title']) ? __('Popular Searches') : $instance['popular-searches-title']);
-			$count = (int) (empty($instance['popular-searches-number']) ? 5 : $instance['popular-searches-number']);
-			
-			echo $before_widget;
-			if ($title) {
-				echo $before_title . $title . $after_title;
-			}
-			sm_list_popular_searches('', '', sm_constrain_widget_search_count($count));
-			echo $after_widget;
-		}
-			
-		function update($new_instance, $old_instance){
-			$instance = $old_instance;
-			$instance['popular-searches-title'] = strip_tags(stripslashes($new_instance['popular-searches-title']));
-			$instance['popular-searches-number'] = (int) ($new_instance['popular-searches-number']);
-			return $instance;
-		}
+	function widget($args, $instance) {
+		extract($args);
+		$title = apply_filters('widget_title', empty($instance['popular-searches-title']) ? __('Popular Searches') : $instance['popular-searches-title']);
+		$count = (int) (empty($instance['popular-searches-number']) ? 5 : $instance['popular-searches-number']);
 		
-		function form($instance){
-			//Defaults
-			$instance = wp_parse_args((array) $instance, array('popular-searches-title' => 'Popular Searches', 'popular-searches-number' => 5));
-			
-			$title = htmlspecialchars($instance['popular-searches-title']);
-			$count = htmlspecialchars($instance['popular-searches-number']);
-			
-			# Output the options
-			echo '<p><label for="' . $this->get_field_name('popular-searches-title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('popular-searches-title') . '" type="text" value="' . $title . '" /></label></p>';
-			echo '<p><label for="' . $this->get_field_name('popular-searches-number') . '">' . __('Number of searches to show:') . ' <input id="' . $this->get_field_id('popular-searches-number') . '" name="' . $this->get_field_name('popular-searches-number') . '" type="text" value="' . $count . '" size="3" /></label></p>';
-			echo '<p><small>Powered by Search Meter</small></p>';
+		echo $before_widget;
+		if ($title) {
+			echo $before_title . $title . $after_title;
 		}
+		sm_list_popular_searches('', '', sm_constrain_widget_search_count($count));
+		echo $after_widget;
 	}
-
-	class SM_Recent_Searches_Widget extends WP_Widget {
-	   	function SM_Recent_Searches_Widget() {
-		    $widget_ops = array('classname' => 'widget_search_meter', 'description' => __( "A list of the most recent successful searches on your blog"));
-		    $this->WP_Widget('recent_searches', __('Recent Searches'), $widget_ops);
-	    }
-
-		function widget($args, $instance) {
-			extract($args);
-			$title = apply_filters('widget_title', empty($instance['recent-searches-title']) ? __('Recent Searches') : $instance['recent-searches-title']);
-			$count = (int) (empty($instance['recent-searches-number']) ? 5 : $instance['recent-searches-number']);
-			
-			echo $before_widget;
-			if ($title) {
-				echo $before_title . $title . $after_title;
-			}
-			sm_list_recent_searches('', '', sm_constrain_widget_search_count($count));
-			echo $after_widget;
-		}
-			
-		function update($new_instance, $old_instance){
-			$instance = $old_instance;
-			$instance['recent-searches-title'] = strip_tags(stripslashes($new_instance['recent-searches-title']));
-			$instance['recent-searches-number'] = (int) ($new_instance['recent-searches-number']);
-			return $instance;
-		}
 		
-		function form($instance){
-			//Defaults
-			$instance = wp_parse_args((array) $instance, array('recent-searches-title' => 'Recent Searches', 'recent-searches-number' => 5));
-			
-			$title = htmlspecialchars($instance['recent-searches-title']);
-			$count = htmlspecialchars($instance['recent-searches-number']);
-			
-			# Output the options
-			echo '<p><label for="' . $this->get_field_name('recent-searches-title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('recent-searches-title') . '" type="text" value="' . $title . '" /></label></p>';
-			echo '<p><label for="' . $this->get_field_name('recent-searches-number') . '">' . __('Number of searches to show:') . ' <input id="' . $this->get_field_id('recent-searches-number') . '" name="' . $this->get_field_name('recent-searches-number') . '" type="text" value="' . $count . '" size="3" /></label></p>';
-			echo '<p><small>Powered by Search Meter</small></p>';
-		}
+	function update($new_instance, $old_instance){
+		$instance = $old_instance;
+		$instance['popular-searches-title'] = strip_tags(stripslashes($new_instance['popular-searches-title']));
+		$instance['popular-searches-number'] = (int) ($new_instance['popular-searches-number']);
+		return $instance;
 	}
-} else {
-	add_action('init', 'tguy_sm_register_widgets');
-	function tguy_sm_register_widgets() {
-		if (function_exists('register_sidebar_widget') ) {
-			register_sidebar_widget('Recent Searches', 'sm_list_recent_searches_widget', 'recent_searches');
-			register_sidebar_widget('Popular Searches', 'sm_list_popular_searches_widget', 'popular_searches');
-			register_widget_control('Recent Searches', 'sm_list_recent_searches_control', '', '120px');
-			register_widget_control('Popular Searches', 'sm_list_popular_searches_control', '', '120px');
-		}
+	
+	function form($instance){
+		//Defaults
+		$instance = wp_parse_args((array) $instance, array('popular-searches-title' => 'Popular Searches', 'popular-searches-number' => 5));
+		
+		$title = htmlspecialchars($instance['popular-searches-title']);
+		$count = htmlspecialchars($instance['popular-searches-number']);
+		
+		# Output the options
+		echo '<p><label for="' . $this->get_field_name('popular-searches-title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('popular-searches-title') . '" type="text" value="' . $title . '" /></label></p>';
+		echo '<p><label for="' . $this->get_field_name('popular-searches-number') . '">' . __('Number of searches to show:') . ' <input id="' . $this->get_field_id('popular-searches-number') . '" name="' . $this->get_field_name('popular-searches-number') . '" type="text" value="' . $count . '" size="3" /></label></p>';
+		echo '<p><small>Powered by Search Meter</small></p>';
+	}
+}
+
+class SM_Recent_Searches_Widget extends WP_Widget {
+	function SM_Recent_Searches_Widget() {
+		$widget_ops = array('classname' => 'widget_search_meter', 'description' => __( "A list of the most recent successful searches on your blog"));
+		$this->WP_Widget('recent_searches', __('Recent Searches'), $widget_ops);
 	}
 
-	function sm_list_popular_searches_widget($args) {
-		$options = get_option('tguy_search_meter');
-		$number = sm_constrain_widget_search_count((int)$options['popular-searches-number']);
-		sm_list_popular_searches('<h2 class="widgettitle">Popular Searches</h2>', '', $number);
-	}
-	
-	function sm_list_popular_searches_control() {
-		$options = get_option('tguy_search_meter');
-		if ($_POST["popular-searches-submit"]) {
-			$options['popular-searches-number'] = (int) $_POST["popular-searches-number"];
-			update_option('tguy_search_meter', $options);
+	function widget($args, $instance) {
+		extract($args);
+		$title = apply_filters('widget_title', empty($instance['recent-searches-title']) ? __('Recent Searches') : $instance['recent-searches-title']);
+		$count = (int) (empty($instance['recent-searches-number']) ? 5 : $instance['recent-searches-number']);
+		
+		echo $before_widget;
+		if ($title) {
+			echo $before_title . $title . $after_title;
 		}
-		$number = sm_constrain_widget_search_count((int)$options['popular-searches-number']);
-	?>
-				<p>This widget shows the most popular searches in the last month. Only successful searches are listed.</p>
-				<p><label for="popular-searches-number"><?php _e('Number of searches to show:'); ?> <input style="width: 5ex; text-align: center;" id="popular-searches-number" name="popular-searches-number" type="text" value="<?php echo $number; ?>" /></label></p>
-				<p><em>Powered by Search Meter</em></p>
-				<input type="hidden" id="popular-searches-submit" name="popular-searches-submit" value="1" />
-	<?php
+		sm_list_recent_searches('', '', sm_constrain_widget_search_count($count));
+		echo $after_widget;
+	}
+		
+	function update($new_instance, $old_instance){
+		$instance = $old_instance;
+		$instance['recent-searches-title'] = strip_tags(stripslashes($new_instance['recent-searches-title']));
+		$instance['recent-searches-number'] = (int) ($new_instance['recent-searches-number']);
+		return $instance;
 	}
 	
-	function sm_list_recent_searches_widget($args) {
-		$options = get_option('tguy_search_meter');
-		$number = sm_constrain_widget_search_count((int)$options['recent-searches-number']);
-		sm_list_recent_searches('<h2 class="widgettitle">Recent Searches</h2>', '', $number);
-	}
-	
-	function sm_list_recent_searches_control() {
-		$options = get_option('tguy_search_meter');
-		if ($_POST["recent-searches-submit"]) {
-			$options['recent-searches-number'] = (int) $_POST["recent-searches-number"];
-			update_option('tguy_search_meter', $options);
-		}
-		$number = sm_constrain_widget_search_count((int)$options['recent-searches-number']);
-	?>
-				<p>This widget shows what people have recently searched for. Only successful searches are listed.</p>
-				<p><label for="recent-searches-number"><?php _e('Number of searches to show:'); ?> <input style="width: 5ex; text-align: center;" id="recent-searches-number" name="recent-searches-number" type="text" value="<?php echo $number; ?>" /></label></p>
-				<p><em>Powered by Search Meter</em></p>
-				<input type="hidden" id="recent-searches-submit" name="recent-searches-submit" value="1" />
-	<?php
+	function form($instance){
+		//Defaults
+		$instance = wp_parse_args((array) $instance, array('recent-searches-title' => 'Recent Searches', 'recent-searches-number' => 5));
+		
+		$title = htmlspecialchars($instance['recent-searches-title']);
+		$count = htmlspecialchars($instance['recent-searches-number']);
+		
+		# Output the options
+		echo '<p><label for="' . $this->get_field_name('recent-searches-title') . '">' . __('Title:') . ' <input class="widefat" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('recent-searches-title') . '" type="text" value="' . $title . '" /></label></p>';
+		echo '<p><label for="' . $this->get_field_name('recent-searches-number') . '">' . __('Number of searches to show:') . ' <input id="' . $this->get_field_id('recent-searches-number') . '" name="' . $this->get_field_name('recent-searches-number') . '" type="text" value="' . $count . '" size="3" /></label></p>';
+		echo '<p><small>Powered by Search Meter</small></p>';
 	}
 }
 
@@ -469,12 +415,17 @@ function tguy_sm_reset_stats() {
 
 function tguy_sm_add_admin_pages() {
 	$options = get_option('tguy_search_meter');
-	$view_stats_capability = $options['sm_view_stats_capability'];
+	$view_stats_capability = tguy_sm_array_value($options, 'sm_view_stats_capability');
 	if ($view_stats_capability == '') {
 		$view_stats_capability = TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY;
 	}
 	add_submenu_page('index.php', 'Search Meter Statistics', 'Search Meter', $view_stats_capability, __FILE__, 'tguy_sm_stats_page');
 	add_options_page('Search Meter', 'Search Meter', TGUY_SM_OPTIONS_CAPABILITY, __FILE__, 'tguy_sm_options_page');
+}
+
+// This is here to avoid E_NOTICE when indexing nonexistent array keys. There's probably a better solution.
+function tguy_sm_array_value(&$array, $key) {
+	return array_key_exists($key, $array) ? $array[$key] : null;
 }
 
 
@@ -535,9 +486,9 @@ div.sm-stats-clear {
 }
 
 function tguy_sm_stats_page() {
-	$recent_count = intval($_GET['recent']);
-	if (0 < $recent_count) {
-		$do_show_details = intval($_GET['details']);
+	if (array_key_exists('recent', $_GET)) {
+		$recent_count = intval($_GET['recent']);
+		$do_show_details = array_key_exists('details', $_GET) && $_GET['details'];
 		tguy_sm_recent_page($recent_count, $do_show_details);
 	} else {
 		tguy_sm_summary_page();
@@ -783,7 +734,7 @@ function tguy_sm_options_page() {
 		echo '<div id="message" class="updated fade"><p><strong>Statistics have been reset.</strong></p></div>';
 	}
 	$options = get_option('tguy_search_meter');
-	$view_stats_capability = $options['sm_view_stats_capability'];
+	$view_stats_capability = tguy_sm_array_value($options, 'sm_view_stats_capability');
 	if ($view_stats_capability == '') {
 		$view_stats_capability = TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY;
 	}
@@ -828,14 +779,14 @@ function tguy_sm_options_page() {
 						<label for="sm_filter_words">When a search term contains any of these words, it will be filtered 
 						and will not show up in the Recent Searches or Popular Searches widgets. This will match inside words, 
 						so &#8220;press&#8221; will match &#8220;WordPress&#8221;.</label>
-						<textarea name="sm_filter_words" rows="3" cols="40" id="sm_filter_words" class="large-text code"><?php echo esc_html($options['sm_filter_words']); ?></textarea>
+						<textarea name="sm_filter_words" rows="3" cols="40" id="sm_filter_words" class="large-text code"><?php echo esc_html(tguy_sm_array_value($options, 'sm_filter_words')); ?></textarea>
 						</fieldset>
 					</td>
 				</tr>
 				<tr>
 					<th class="th-full" scope="row" colspan="2">
 						<label for="sm_details_verbose">
-							<input type="checkbox" id="sm_details_verbose" name="sm_details_verbose" <?php echo ($options['sm_details_verbose']==true?"checked=\"checked\"":"") ?> />
+							<input type="checkbox" id="sm_details_verbose" name="sm_details_verbose" <?php echo (tguy_sm_array_value($options, 'sm_details_verbose') ? 'checked="checked"' : '') ?> />
 							Keep detailed information about recent searches (taken from HTTP headers)
 						</label>
 					</th>
@@ -843,7 +794,7 @@ function tguy_sm_options_page() {
 				<tr>
 					<th class="th-full" scope="row" colspan="2">
 						<label for="sm_disable_donation">
-							<input type="checkbox" id="sm_disable_donation" name="sm_disable_donation" <?php echo ($options['sm_disable_donation']==true?"checked=\"checked\"":"") ?> />
+							<input type="checkbox" id="sm_disable_donation" name="sm_disable_donation" <?php echo (tguy_sm_array_value($options, 'sm_disable_donation') ? 'checked="checked"' : '') ?> />
 							Hide the &#8220;Do you find this plugin useful?&#8221; box
 						</label>
 					</th>
@@ -876,7 +827,7 @@ function tguy_sm_options_page() {
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. At that page, you can also offer suggestions, request new features or report problems.</p>
 
-		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_message(); } ?>
+		<?php if ( ! tguy_sm_array_value($options, 'sm_disable_donation')) { tguy_sm_show_donation_message(); } ?>
 
 	</div>
 	<?php
