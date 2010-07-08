@@ -3,7 +3,7 @@ Contributors: bennettmcelwee
 Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Tags: search, meter, search-meter, statistics, widget, admin
 Requires at least: 2.8
-Tested up to: 2.9.2
+Tested up to: 3.0
 Stable tag: 2.7.1
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.
@@ -73,8 +73,10 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
-= 2.7.1+ =
+= 2.7.2 =
 * Requires WP 2.8.
+* Fix problem displaying multiple-word searches in WP 3.0.
+* Remove notice messages when debugging.
 
 = 2.7 =
 * Don't show duplicated recent searches
