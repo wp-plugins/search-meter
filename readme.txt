@@ -73,6 +73,9 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
+= 2.7.3 =
+* Remove another warning message.
+
 = 2.7.2 =
 * Requires WP 2.8.
 * Fix problem displaying multiple-word searches in WP 3.0.

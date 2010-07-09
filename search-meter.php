@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.7.2
+Version: 2.7.3
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
@@ -423,9 +423,9 @@ function tguy_sm_add_admin_pages() {
 	add_options_page('Search Meter', 'Search Meter', TGUY_SM_OPTIONS_CAPABILITY, __FILE__, 'tguy_sm_options_page');
 }
 
-// This is here to avoid E_NOTICE when indexing nonexistent array keys. There's probably a better solution.
+// This is here to avoid E_NOTICE when indexing nonexistent array keys. There's probably a better solution. Suggestions are welcome.
 function tguy_sm_array_value(&$array, $key) {
-	return array_key_exists($key, $array) ? $array[$key] : null;
+	return (is_array($array) && array_key_exists($key, $array)) ? $array[$key] : null;
 }
 
 
