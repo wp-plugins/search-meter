@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.7.3
+Version: 2.7.3+
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 
@@ -29,7 +29,7 @@ INSTRUCTIONS
 Thanks to Kaufman (http://www.terrik.com/wordpress/) and the many others who have offered suggestions.
 
 
-Copyright (C) 2005-10 Bennett McElwee (bennett at thunderguy dotcom)
+Copyright (C) 2005-11 Bennett McElwee (bennett at thunderguy dotcom)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of version 2 of the GNU General Public
@@ -78,7 +78,7 @@ define('TGUY_SM_OPTIONS_CAPABILITY', 'manage_options');
 
 function sm_list_popular_searches($before = '', $after = '', $count = 5) {
 // List the most popular searches in the last month in decreasing order of popularity.
-	global $wpdb, $table_prefix, $wp_rewrite;
+	global $wpdb, $wp_rewrite;
 	$count = intval($count);
 	$escaped_filter_regex = sm_get_escaped_filter_regex();
 	$filter_term = ($escaped_filter_regex == "" ? "" : "AND NOT `terms` REGEXP '{$escaped_filter_regex}'");
@@ -89,7 +89,7 @@ function sm_list_popular_searches($before = '', $after = '', $count = 5) {
 	// function will be used in a sidebar.
 	$results = $wpdb->get_results(
 		"SELECT `terms`, SUM(`count`) AS countsum
-		FROM `{$table_prefix}searchmeter`
+		FROM `{$wpdb->prefix}searchmeter`
 		WHERE DATE_SUB( CURDATE( ) , INTERVAL 30 DAY ) <= `date`
 		AND 0 < `last_hits`
 		{$filter_term}
@@ -108,13 +108,13 @@ function sm_list_popular_searches($before = '', $after = '', $count = 5) {
 
 function sm_list_recent_searches($before = '', $after = '', $count = 5) {
 // List the most recent successful searches, ignoring duplicates
-	global $wpdb, $table_prefix;
+	global $wpdb;
 	$count = intval($count);
 	$escaped_filter_regex = sm_get_escaped_filter_regex();
 	$filter_term = ($escaped_filter_regex == "" ? "" : "AND NOT `terms` REGEXP '{$escaped_filter_regex}'");
 	$results = $wpdb->get_results(
 		"SELECT `terms`, MAX(`datetime`) `maxdatetime`
-		FROM `{$table_prefix}searchmeter_recent`
+		FROM `{$wpdb->prefix}searchmeter_recent`
 		WHERE 0 < `hits`
 		{$filter_term}
 		GROUP BY `terms`
@@ -285,7 +285,7 @@ $tguy_sm_action_count = 0;
 function tguy_sm_save_search($posts) {
 // Check if the request is a search, and if so then save details.
 // This is a filter but does not change the posts.
-	global $wpdb, $wp_query, $table_prefix, $tguy_sm_action_count;
+	global $wpdb, $wp_query, $tguy_sm_action_count;
 
 	++$tguy_sm_action_count;
 	if (is_search()
@@ -324,33 +324,33 @@ function tguy_sm_save_search($posts) {
 		$details = $wpdb->escape($details);
 
 		// Save the individual search to the DB
-		$query = "INSERT INTO `{$table_prefix}searchmeter_recent` (`terms`,`datetime`,`hits`,`details`)
+		$query = "INSERT INTO `{$wpdb->prefix}searchmeter_recent` (`terms`,`datetime`,`hits`,`details`)
 		VALUES ('$search_string',NOW(),$hit_count,'$details')";
 		$success = $wpdb->query($query);
 		if ($success) {
 			// Ensure table never grows larger than TGUY_SM_HISTORY_SIZE + 100
 			$rowcount = $wpdb->get_var(
 				"SELECT count(`datetime`) as rowcount
-				FROM `{$table_prefix}searchmeter_recent`");
+				FROM `{$wpdb->prefix}searchmeter_recent`");
 			if ((TGUY_SM_HISTORY_SIZE + 100) < $rowcount) {
 				// find time of (TGUY_SM_HISTORY_SIZE)th entry
 				$dateZero = $wpdb->get_var(
 					"SELECT `datetime`
-					FROM `{$table_prefix}searchmeter_recent`
+					FROM `{$wpdb->prefix}searchmeter_recent`
 					ORDER BY `datetime` DESC LIMIT ".TGUY_SM_HISTORY_SIZE.", 1");
-				$query = "DELETE FROM `{$table_prefix}searchmeter_recent` WHERE `datetime` < '$dateZero'";
+				$query = "DELETE FROM `{$wpdb->prefix}searchmeter_recent` WHERE `datetime` < '$dateZero'";
 				$success = $wpdb->query($query);
 			}
 		}
 		// Save search summary into the DB. Usually this will be a new row, so try to insert first
-		$query = "INSERT INTO `{$table_prefix}searchmeter` (`terms`,`date`,`count`,`last_hits`)
+		$query = "INSERT INTO `{$wpdb->prefix}searchmeter` (`terms`,`date`,`count`,`last_hits`)
 		VALUES ('$search_terms',CURDATE(),1,$hit_count)";
 		// Temporarily suppress errors, as this query is expected to fail on duplicate searches in a single day. Thanks to James Collins.
 		$suppress = $wpdb->suppress_errors();
 		$success = $wpdb->query($query);
 		$wpdb->suppress_errors($suppress);
 		if (!$success) {
-			$query = "UPDATE `{$table_prefix}searchmeter` SET
+			$query = "UPDATE `{$wpdb->prefix}searchmeter` SET
 				`count` = `count` + 1,
 				`last_hits` = $hit_count
 			WHERE `terms` = '$search_terms' AND `date` = CURDATE()";
@@ -362,8 +362,8 @@ function tguy_sm_save_search($posts) {
 
 function tguy_sm_create_summary_table() {
 // Create the table if not already there.
-	global $wpdb, $table_prefix;
-	$table_name = $table_prefix . "searchmeter";
+	global $wpdb;
+	$table_name = $wpdb->prefix . "searchmeter";
 	if ($wpdb->get_var("show tables like '$table_name'") != $table_name) {
 		if (file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
 			require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
@@ -385,8 +385,8 @@ function tguy_sm_create_summary_table() {
 
 function tguy_sm_create_recent_table() {
 // Create the table if not already there.
-	global $wpdb, $table_prefix;
-	$table_name = $table_prefix . "searchmeter_recent";
+	global $wpdb;
+	$table_name = $wpdb->prefix . "searchmeter_recent";
 	if ($wpdb->get_var("show tables like '$table_name'") != $table_name) {
 		if (file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
 			require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
@@ -407,10 +407,10 @@ function tguy_sm_create_recent_table() {
 }
 
 function tguy_sm_reset_stats() {
-	global $wpdb, $table_prefix;
+	global $wpdb;
 	// Delete all records
-	$wpdb->query("DELETE FROM `{$table_prefix}searchmeter`");
-	$wpdb->query("DELETE FROM `{$table_prefix}searchmeter_recent`");
+	$wpdb->query("DELETE FROM `{$wpdb->prefix}searchmeter`");
+	$wpdb->query("DELETE FROM `{$wpdb->prefix}searchmeter_recent`");
 }
 
 function tguy_sm_add_admin_pages() {
@@ -496,14 +496,14 @@ function tguy_sm_stats_page() {
 }
 
 function tguy_sm_summary_page() {
-	global $wpdb, $table_prefix;
+	global $wpdb;
 
 	$options = get_option('tguy_search_meter');
 	$is_disable_donation = $options['sm_disable_donation'];
 
 	// Delete old records
 	$result = $wpdb->query(
-	"DELETE FROM `{$table_prefix}searchmeter`
+	"DELETE FROM `{$wpdb->prefix}searchmeter`
 	WHERE `date` < DATE_SUB( CURDATE() , INTERVAL 30 DAY)");
 	echo "<!-- Search Meter: deleted $result old rows -->\n";
 	?>
@@ -566,7 +566,7 @@ function tguy_sm_summary_page() {
 }
 
 function tguy_sm_summary_table($results, $days, $do_include_successes = false) {
-	global $wpdb, $table_prefix;
+	global $wpdb;
 	// Explanation of the query:
 	// We group by terms, because we want all rows for a term to be combined.
 	// For the search count, we simply SUM the count of all searches for the term.
@@ -582,7 +582,7 @@ function tguy_sm_summary_table($results, $days, $do_include_successes = false) {
 		"SELECT `terms`,
 			SUM( `count` ) AS countsum,
 			SUBSTRING( MAX( CONCAT( `date` , ' ', `last_hits` ) ) , 12 ) AS hits
-		FROM `{$table_prefix}searchmeter`
+		FROM `{$wpdb->prefix}searchmeter`
 		WHERE DATE_SUB( CURDATE( ) , INTERVAL $days DAY ) <= `date`
 		GROUP BY `terms`
 		$hits_selector
@@ -622,7 +622,7 @@ function tguy_sm_summary_table($results, $days, $do_include_successes = false) {
 }
 
 function tguy_sm_recent_page($max_lines, $do_show_details) {
-	global $wpdb, $table_prefix;
+	global $wpdb;
 
 	$options = get_option('tguy_search_meter');
 	$is_details_available = $options['sm_details_verbose'];
@@ -655,7 +655,7 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 		<?php
 		$query = 
 			"SELECT `datetime`, `terms`, `hits`, `details`
-			FROM `{$table_prefix}searchmeter_recent`
+			FROM `{$wpdb->prefix}searchmeter_recent`
 			ORDER BY `datetime` DESC, `terms` ASC
 			LIMIT $max_lines";
 		$results = $wpdb->get_results($query);
