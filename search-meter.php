@@ -766,7 +766,7 @@ function tguy_sm_options_page() {
 								<?php echo ($view_stats_capability=='publish_posts'?"checked=\"checked\"":"") ?> />
 							Post authors and administrators</label><br>
 						<label title='Users with "manage_options" capability'>
-							<input type="radio" name="sm_view_stats_capability" value="activate_plugins" 
+							<input type="radio" name="sm_view_stats_capability" value="manage_options" 
 								<?php echo ($view_stats_capability=='manage_options'?"checked=\"checked\"":"") ?> />
 							Administrators only</label>
 						</fieldset>

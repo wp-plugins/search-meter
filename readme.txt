@@ -73,6 +73,9 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
+= in progress =
+* Fix option for permission level, which was not being saved correctly
+
 = 2.7.3 =
 * Remove another warning message.
 
