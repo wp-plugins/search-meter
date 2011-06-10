@@ -841,7 +841,8 @@ function tguy_sm_show_donation_message() {
 <strong>Do you find this plugin useful?</strong><br />
 I write WordPress plugins because I enjoy doing it, but it does take up a lot
 of my time. If you think this plugin is useful, please consider donating some appropriate
-amount by clicking the Donate button. Thank you.</p>
+amount by clicking the <strong>Donate</strong> button. You can also send <strong>Bitcoins</strong>
+to address <tt>1542gqyprvQd7gwvtZZ4x25cPeGWVKg45x</tt>. Thanks!</p>
 <?php
 }
 
