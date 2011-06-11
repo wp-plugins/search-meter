@@ -75,7 +75,8 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 = in progress =
 * Fix option for permission level, which was not being saved correctly.
-* Allow search meter to work with WordPress MU.
+* Allow Search Meter to work with Multisite WordPress.
+* Fix all internal links.
 * Add Bitcoin donation address in case you're feeling generous.
 
 = 2.7.3 =

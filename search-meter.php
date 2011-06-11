@@ -6,6 +6,7 @@ Description: Keeps track of what your visitors are searching for. After you have
 Version: 2.7.3+
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
+Donate link: http://www.thunderguy.com/semicolon/donate/
 
 $Revision$
 
@@ -43,6 +44,12 @@ http://www.gnu.org/copyleft/gpl.html
 or by writing to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
+
+
+// This is here to avoid E_NOTICE when indexing nonexistent array keys. There's probably a better solution. Suggestions are welcome.
+function tguy_sm_array_value(&$array, $key) {
+	return (is_array($array) && array_key_exists($key, $array)) ? $array[$key] : null;
+}
 
 
 if (!is_plugin_page()) :
@@ -423,10 +430,15 @@ function tguy_sm_add_admin_pages() {
 	add_options_page('Search Meter', 'Search Meter', TGUY_SM_OPTIONS_CAPABILITY, __FILE__, 'tguy_sm_options_page');
 }
 
-// This is here to avoid E_NOTICE when indexing nonexistent array keys. There's probably a better solution. Suggestions are welcome.
-function tguy_sm_array_value(&$array, $key) {
-	return (is_array($array) && array_key_exists($key, $array)) ? $array[$key] : null;
+// Add settings link on plugin page
+function tguy_sm_settings_link($links) {
+	if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) {
+		$settings_link = '<a href="options-general.php?page='.plugin_basename(__FILE__).'">Settings</a>'; 
+		array_unshift($links, $settings_link); 
+	}
+	return $links; 
 }
+add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'tguy_sm_settings_link' );
 
 
 // Display information
@@ -511,8 +523,8 @@ function tguy_sm_summary_page() {
 
 		<ul id="search_meter_menu">
 		<li class="current">Summary</li>
-		<li><a href="<?php echo $_SERVER['PHP_SELF'] . "?page=" . $_REQUEST['page'] . "&amp;recent=100" ?>">Last 100 Searches</a></li>
-		<li><a href="<?php echo $_SERVER['PHP_SELF'] . "?page=" . $_REQUEST['page'] . "&amp;recent=500" ?>">Last 500 Searches</a></li>
+		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>&amp;recent=100">Last 100 Searches</a></li>
+		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>&amp;recent=500">Last 500 Searches</a></li>
 		</ul>
 
 		<h2>Search summary</h2>
@@ -554,7 +566,7 @@ function tguy_sm_summary_page() {
 		<h2>Notes</h2>
 
 		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) : ?>
-		<p>To manage your search statistics, go to the <strong>Settings</strong> section and choose <strong>Search Meter</strong>.</p>
+		<p>To manage your search statistics, go to the <a href="options-general.php?page=<?php echo plugin_basename(__FILE__); ?>">Search Meter Settings</a> page.</p>
 		<?php endif; ?>
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
@@ -627,7 +639,7 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 	$options = get_option('tguy_search_meter');
 	$is_details_available = $options['sm_details_verbose'];
 	$is_disable_donation = $options['sm_disable_donation'];
-	$this_url_base = $_SERVER['PHP_SELF'] . '?page=' . $_REQUEST['page'];
+	$this_url_base = 'index.php?page=' . plugin_basename(__FILE__);
 	$this_url_recent_arg = '&amp;recent=' . $max_lines;
 	?>
 	<div class="wrap">
@@ -637,12 +649,12 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 		<?php if (100 == $max_lines) : ?>
 			<li class="current">Last 100 Searches</li>
 		<?php else : ?>
-			<li><a href="<?php echo $this_url_base . '&amp;recent=100' ?>">Last 100 Searches</a></li>
+			<li><a href="<?php echo $this_url_base ?>&amp;recent=100">Last 100 Searches</a></li>
 		<?php endif ?>
 		<?php if (500 == $max_lines) : ?>
 			<li class="current">Last 500 Searches</li>
 		<?php else : ?>
-			<li><a href="<?php echo $this_url_base . '&amp;recent=500' ?>">Last 500 Searches</a></li>
+			<li><a href="<?php echo $this_url_base ?>&amp;recent=500">Last 500 Searches</a></li>
 		<?php endif ?>
 		</ul>
 
@@ -699,7 +711,7 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 		<h2>Notes</h2>
 
 		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) : ?>
-		<p>To manage your search statistics, go to the <strong>Settings</strong> section and choose <strong>Search Meter</strong>.</p>
+		<p>To manage your search statistics, go to the <a href="options-general.php?page=<?php echo plugin_basename(__FILE__); ?>">Search Meter Settings</a> page.</p>
 		<?php endif; ?>
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
@@ -823,7 +835,7 @@ function tguy_sm_options_page() {
 
 		<h3>Notes</h3>
 
-		<p>To see your search statistics, go to the <strong>Dashboard</strong> and choose <strong>Search Meter</strong>.</p>
+		<p>To see your search statistics, go to the <a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>">Search Meter Dashboard</a>.</p>
 
 		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. At that page, you can also offer suggestions, request new features or report problems.</p>
 
