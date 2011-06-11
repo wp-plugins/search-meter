@@ -1,9 +1,9 @@
 === Search Meter ===
 Contributors: bennettmcelwee
-Donate link: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
-Tags: search, meter, search-meter, statistics, widget, admin
+Donate link: http://www.thunderguy.com/semicolon/donate/
+Tags: search, meter, search-meter, statistics, widget, admin, keywords
 Requires at least: 2.8
-Tested up to: 3.0
+Tested up to: 3.1.3
 Stable tag: 2.7.3
 
 Search Meter tracks what your readers are searching for on your blog. View full details of recent searches or stats for the last day, week or month.
@@ -73,10 +73,11 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
-= in progress =
+= 2.7.99 =
 * Fix option for permission level, which was not being saved correctly.
 * Allow Search Meter to work with Multisite WordPress.
 * Fix all internal links.
+* Clean up dashboard tab layout.
 * Add Bitcoin donation address in case you're feeling generous.
 
 = 2.7.3 =

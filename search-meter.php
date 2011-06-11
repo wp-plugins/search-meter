@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.7.3+
+Version: 2.7.99
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 Donate link: http://www.thunderguy.com/semicolon/donate/
@@ -426,7 +426,7 @@ function tguy_sm_add_admin_pages() {
 	if ($view_stats_capability == '') {
 		$view_stats_capability = TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY;
 	}
-	add_submenu_page('index.php', 'Search Meter Statistics', 'Search Meter', $view_stats_capability, __FILE__, 'tguy_sm_stats_page');
+	add_submenu_page('index.php', 'Search Meter', 'Search Meter', $view_stats_capability, __FILE__, 'tguy_sm_stats_page');
 	add_options_page('Search Meter', 'Search Meter', TGUY_SM_OPTIONS_CAPABILITY, __FILE__, 'tguy_sm_options_page');
 }
 
@@ -447,31 +447,35 @@ add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'tguy_sm_settings_l
 function tguy_sm_stats_css() {
 ?>
 <style type="text/css">
-#search_meter_menu { 
-	margin: 0;
-	padding: 0; 
+#search_meter_menu {
+	line-height: 1.4em;
+	margin: 5px 0 0 0;
+	padding: 0;
+	border-bottom: 1px solid #aaaaaa;
 }
 #search_meter_menu li { 
-	display: inline; list-style-type: none; list-style-image: none; list-style-position: outside; text-align: center;
-	margin: 0;
-	line-height: 170%;
-}
-#search_meter_menu li.current { 
-	font-weight: bold; 
-	background-color: #fff;
-	color: #000;
-	padding: 5px;
-}
-#search_meter_menu a {
-	background-color: #fff;
-	color: #69c; 
-	padding: 4px;
-	font-size: 12px;
+	border: 1px solid #aaaaaa;
 	border-bottom: none;
+	line-height: 1.4em;
+	display: inline-block;
+	margin: 0 5px 0 0;
+	padding: 0;
+	list-style-type: none;
+	list-style-image: none;
+	list-style-position: outside;
 }
-#search_meter_menu a:hover {
-	background-color: #69c;
-	color: #fff; 
+#search_meter_menu li.current span { 
+	background-color: #ffffff;
+	font-weight: bold;
+	padding: 0 5px 3px 5px;
+}
+#search_meter_menu li a,
+#search_meter_menu li a:visited {
+	padding: 0 5px;
+	text-decoration: none;
+}
+#search_meter_menu li a:hover {
+	background-color: #eaf2fa;
 }
 #search_meter_menu + .wrap {
 	margin-top: 0;
@@ -522,7 +526,7 @@ function tguy_sm_summary_page() {
 	<div class="wrap">
 
 		<ul id="search_meter_menu">
-		<li class="current">Summary</li>
+		<li class="current"><span>Summary</span></li>
 		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>&amp;recent=100">Last 100 Searches</a></li>
 		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>&amp;recent=500">Last 500 Searches</a></li>
 		</ul>
@@ -647,12 +651,12 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 		<ul id="search_meter_menu">
 		<li><a href="<?php echo $this_url_base ?>">Summary</a></li>
 		<?php if (100 == $max_lines) : ?>
-			<li class="current">Last 100 Searches</li>
+			<li class="current"><span>Last 100 Searches</span></li>
 		<?php else : ?>
 			<li><a href="<?php echo $this_url_base ?>&amp;recent=100">Last 100 Searches</a></li>
 		<?php endif ?>
 		<?php if (500 == $max_lines) : ?>
-			<li class="current">Last 500 Searches</li>
+			<li class="current"><span>Last 500 Searches</span></li>
 		<?php else : ?>
 			<li><a href="<?php echo $this_url_base ?>&amp;recent=500">Last 500 Searches</a></li>
 		<?php endif ?>
