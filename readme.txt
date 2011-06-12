@@ -73,11 +73,11 @@ The [Search Meter home page](http://www.thunderguy.com/semicolon/wordpress/searc
 
 == Changelog ==
 
-= 2.7.99 =
+= 2.7.3.20110612 =
 * Fix option for permission level, which was not being saved correctly.
 * Allow Search Meter to work with Multisite WordPress.
 * Fix all internal links.
-* Clean up dashboard tab layout.
+* Clean up dashboard tabs and table layout.
 * Add Bitcoin donation address in case you're feeling generous.
 
 = 2.7.3 =
