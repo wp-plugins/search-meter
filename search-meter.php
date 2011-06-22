@@ -3,7 +3,7 @@
 Plugin Name: Search Meter
 Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
-Version: 2.8
+Version: 2.8.0.1
 Author: Bennett McElwee
 Author URI: http://www.thunderguy.com/semicolon/
 Donate link: http://www.thunderguy.com/semicolon/donate/
@@ -541,15 +541,15 @@ function tguy_sm_summary_page() {
 
 		<div class="sm-stats-table">
 		<h3>Yesterday and today</h3>
-		<?php tguy_sm_summary_table($results, 1, true); 	?>
+		<?php tguy_sm_summary_table(1); 	?>
 		</div>
 		<div class="sm-stats-table">
 		<h3>Last 7 days</h3>
-		<?php tguy_sm_summary_table($results, 7, true); ?>
+		<?php tguy_sm_summary_table(7); ?>
 		</div>
 		<div class="sm-stats-table">
 		<h3>Last 30 days</h3>
-		<?php tguy_sm_summary_table($results, 30, true); ?>
+		<?php tguy_sm_summary_table(30); ?>
 		</div>
 		<div class="sm-stats-clear"></div>
 
@@ -559,15 +559,15 @@ function tguy_sm_summary_page() {
 
 		<div class="sm-stats-table">
 		<h3>Yesterday and today</h3>
-		<?php tguy_sm_summary_table($results, 1, false); ?>
+		<?php tguy_sm_summary_table(1, false); ?>
 		</div>
 		<div class="sm-stats-table">
 		<h3>Last 7 days</h3>
-		<?php tguy_sm_summary_table($results, 7,false); 	?>
+		<?php tguy_sm_summary_table(7, false); 	?>
 		</div>
 		<div class="sm-stats-table">
 		<h3>Last 30 days</h3>
-		<?php tguy_sm_summary_table($results, 30, false); ?>
+		<?php tguy_sm_summary_table(30, false); ?>
 		</div>
 		<div class="sm-stats-clear"></div>
 
@@ -585,7 +585,7 @@ function tguy_sm_summary_page() {
 	<?php
 }
 
-function tguy_sm_summary_table($results, $days, $do_include_successes = false) {
+function tguy_sm_summary_table($days, $do_include_successes = true) {
 	global $wpdb;
 	// Explanation of the query:
 	// We group by terms, because we want all rows for a term to be combined.
@@ -730,6 +730,23 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 	<?php
 }
 
+	add_action('wp_dashboard_setup', 'smcln_sm_dashboard');
+	
+	// Add the widget to the dashboard
+	function smcln_sm_dashboard(){
+		wp_add_dashboard_widget( 'search-meter-summary', 'Search Meter Summary', 'smcln_sm_summary');
+	}
+	
+	// Render the summary widget
+	function smcln_sm_summary() {
+	?>
+		<div class="sm-stats-table">
+			<h3>Last 7 days</h3>
+			<?php tguy_sm_summary_table(7); ?>
+			</div>
+	    </div>
+	<?php
+	}
 
 endif; // if (!is_plugin_page())
 
