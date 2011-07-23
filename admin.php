@@ -3,7 +3,6 @@
 
 //////// General admin
 
-
 add_action('admin_head', 'tguy_sm_stats_css');
 
 function tguy_sm_stats_css() {
@@ -70,9 +69,17 @@ div.sm-stats-clear {
 }
 #dashboard_search_meter div.sm-stats-table {
 	float: none;
+	padding-bottom: 0;
+	padding-right: 0;
 }
 #dashboard_search_meter div.sm-stats-table th {
 	color: #8F8F8F;
+}
+#dashboard_search_meter div.sm-news {
+	margin-top: 1em;
+}
+#dashboard_search_meter ul.subsubsub {
+	float: none;
 }
 
 </style>
@@ -137,13 +144,39 @@ function tguy_sm_create_recent_table() {
 }
 
 
+//////// Ajax
+
+add_action('admin_head', 'smcln_dashboard_ajax_javascript');
+
+function smcln_dashboard_ajax_javascript() {
+?>
+<script type="text/javascript" >
+jQuery(document).ready(function($) {
+	$(".sm-news").load(ajaxurl, {action: 'smcln_dashboard'}, function() {
+		if ($(this).html()) {
+			$(this).slideDown();
+		}
+	});
+});
+</script>
+<?php
+}
+
+add_action('wp_ajax_smcln_dashboard', 'smcln_dashboard_ajax');
+
+function smcln_dashboard_ajax() {
+	echo wp_remote_retrieve_body( wp_remote_get('http://thunderguy.com/public/search-meter-news-fragment.php') );
+	die(); // this is required to return a proper result
+}
+
+
 //////// Dashboard widget
 
 
 add_action('wp_dashboard_setup', 'smcln_sm_dashboard');
 
 // Add the widget to the dashboard
-function smcln_sm_dashboard(){
+function smcln_sm_dashboard() {
 	wp_add_dashboard_widget( 'dashboard_search_meter', 'Search Meter', 'smcln_sm_summary');
 }
 
@@ -151,25 +184,17 @@ function smcln_sm_dashboard(){
 function smcln_sm_summary() {
 ?>
 	<div class="sm-stats-table">
-		<h4>Searches in last 7 days</h4>
+		<h4>Searches in the Last 7 Days</h4>
 		<?php tguy_sm_summary_table(7); ?>
 	</div>
-	<div class="sm-news">
-		<h4>Search Meter News</h4>
-<?php
-       wp_widget_rss_output(array(
-            'url' => 'http://thunderguy.com/news/search-meter/feed/',  //put your feed URL here
-            'title' => 'Latest Search Meter News', // Your feed title
-            'items' => 2, //how many posts to show
-            'show_summary' => 1, // 0 = false and 1 = true 
-            'show_author' => 0,
-            'show_date' => 1
-       ));
-?>
-	</div>
+	<div class="sm-news" style="display:none"></div>
+	<ul class="subsubsub">
+		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>">Full Dashboard</a> |</li>
+		<li><a href="options-general.php?page=<?php echo plugin_basename(__FILE__); ?>">Settings</a> |</li>
+		<li><a href="http://thunderguy.com/semicolon/donate/">Donate</a></li>
+	</ul>
 <?php
 }
-
 
 //////// Admin pages
 
@@ -461,7 +486,7 @@ function tguy_sm_options_page() {
 	?>
 	<div class="wrap">
 
-		<h2>Search Meter Options</h2>
+		<h2>Search Meter Settings</h2>
 
 		<form name="searchmeter" action="" method="post">
 			<?php

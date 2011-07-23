@@ -1,12 +1,12 @@
 <?php
 /*
 Plugin Name: Search Meter
-Plugin URI: http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
+Plugin URI: http://thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 Description: Keeps track of what your visitors are searching for. After you have activated this plugin, you can check the Search Meter section in the Dashboard to see what your visitors are searching for on your blog.
 Version: 2.8.0.2
 Author: Bennett McElwee
-Author URI: http://www.thunderguy.com/semicolon/
-Donate link: http://www.thunderguy.com/semicolon/donate/
+Author URI: http://thunderguy.com/semicolon/
+Donate link: http://thunderguy.com/semicolon/donate/
 
 $Revision$
 
@@ -25,7 +25,7 @@ INSTRUCTIONS
 * To display recent and popular searches, use the Recent Searches and
   Popular Searches widgets, or the sm_list_popular_searches() and
   sm_list_recent_searches() template tags.
-* For full details, see http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
+* For full details, see http://thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/
 
 Thanks to Kaufman (http://www.terrik.com/wordpress/) and the many others who have offered suggestions.
 
@@ -68,12 +68,6 @@ define('TGUY_SM_ALLOW_DUPLICATE_SAVES', false);
 // to record duplicates (the fact that it's a dupe will be recorded
 // in the details). This will mess up the stats, but could be useful
 // for troubleshooting.
-
-define('TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY', 'publish_posts');
-// Default capability users must have in order to see stats.
-
-define('TGUY_SM_OPTIONS_CAPABILITY', 'manage_options');
-// Capability users must have in order to set options.
 
 
 if (is_admin()) {
