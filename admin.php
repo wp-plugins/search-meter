@@ -1,7 +1,21 @@
 <?php
 
 
+//////// Parameters
+
+
+define('TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY', 'publish_posts');
+// Default capability users must have in order to see stats.
+
+define('TGUY_SM_OPTIONS_CAPABILITY', 'manage_options');
+// Capability users must have in order to set options.
+
+define('TGUY_SM_DASHBOARD_NEWS_URL', 'http://thunderguy.com/public/search-meter-dashboard-news-fragment.php');
+// URL to fetch news for the dashboard from
+
+
 //////// General admin
+
 
 add_action('admin_head', 'tguy_sm_stats_css');
 
@@ -102,11 +116,7 @@ function tguy_sm_create_summary_table() {
 	global $wpdb;
 	$table_name = $wpdb->prefix . "searchmeter";
 	if ($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-		if (file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
-			require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
-		} else { // Wordpress 2.2 or earlier
-			require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
-		}
+		require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
 		dbDelta("
 			CREATE TABLE `{$table_name}` (
 				`terms` VARCHAR(50) NOT NULL,
@@ -125,11 +135,7 @@ function tguy_sm_create_recent_table() {
 	global $wpdb;
 	$table_name = $wpdb->prefix . "searchmeter_recent";
 	if ($wpdb->get_var("show tables like '$table_name'") != $table_name) {
-		if (file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
-			require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
-		} else { // Wordpress 2.2 or earlier
-			require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
-		}
+		require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
 		dbDelta("
 			CREATE TABLE `{$table_name}` (
 				`terms` VARCHAR(50) NOT NULL,
@@ -144,40 +150,28 @@ function tguy_sm_create_recent_table() {
 }
 
 
-//////// Ajax
+//////// Permissions
 
-add_action('admin_head', 'smcln_dashboard_ajax_javascript');
 
-function smcln_dashboard_ajax_javascript() {
-?>
-<script type="text/javascript" >
-jQuery(document).ready(function($) {
-	$(".sm-news").load(ajaxurl, {action: 'smcln_dashboard'}, function() {
-		if ($(this).html()) {
-			$(this).slideDown();
-		}
-	});
-});
-</script>
-<?php
-}
-
-add_action('wp_ajax_smcln_dashboard', 'smcln_dashboard_ajax');
-
-function smcln_dashboard_ajax() {
-	echo wp_remote_retrieve_body( wp_remote_get('http://thunderguy.com/public/search-meter-news-fragment.php') );
-	die(); // this is required to return a proper result
+function smcln_sm_can_view_stats() {
+	$options = get_option('tguy_search_meter');
+	$view_stats_capability = tguy_sm_array_value($options, 'sm_view_stats_capability');
+	if ($view_stats_capability == '') {
+		$view_stats_capability = TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY;
+	}
+	return current_user_can($view_stats_capability);
 }
 
 
 //////// Dashboard widget
 
-
 add_action('wp_dashboard_setup', 'smcln_sm_dashboard');
 
 // Add the widget to the dashboard
 function smcln_sm_dashboard() {
-	wp_add_dashboard_widget( 'dashboard_search_meter', 'Search Meter', 'smcln_sm_summary');
+	if (smcln_sm_can_view_stats()) {
+		wp_add_dashboard_widget( 'dashboard_search_meter', 'Search Meter', 'smcln_sm_summary');
+	}
 }
 
 // Render the summary widget
@@ -190,11 +184,41 @@ function smcln_sm_summary() {
 	<div class="sm-news" style="display:none"></div>
 	<ul class="subsubsub">
 		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>">Full Dashboard</a> |</li>
+		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) : ?>
 		<li><a href="options-general.php?page=<?php echo plugin_basename(__FILE__); ?>">Settings</a> |</li>
+		<?php endif; ?>
 		<li><a href="http://thunderguy.com/semicolon/donate/">Donate</a></li>
 	</ul>
 <?php
 }
+
+// Dashboard widget ajax
+
+add_action('admin_head', 'smcln_dashboard_ajax_javascript');
+
+function smcln_dashboard_ajax_javascript() {
+	if (smcln_sm_can_view_stats()) {
+	?>
+<script type="text/javascript" >
+jQuery(document).ready(function($) {
+	$(".sm-news").load(ajaxurl, {action: 'smcln_dashboard'}, function() {
+		if ($(this).html()) {
+			$(this).slideDown();
+		}
+	});
+});
+</script>
+<?php
+	}
+}
+
+add_action('wp_ajax_smcln_dashboard', 'smcln_dashboard_ajax');
+
+function smcln_dashboard_ajax() {
+	echo wp_remote_retrieve_body( wp_remote_get(TGUY_SM_DASHBOARD_NEWS_URL) );
+	die(); // this is required to return a proper result
+}
+
 
 //////// Admin pages
 
@@ -347,7 +371,7 @@ function tguy_sm_summary_table($days, $do_include_successes = true) {
 		</table>
 		<?php
 	} else {
-		?><p>No searches recorded for this period.</p><?php
+		?><p><em>No searches recorded for this period.</em></p><?php
 	}
 }
 
