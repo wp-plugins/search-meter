@@ -10,9 +10,6 @@ define('TGUY_SM_DEFAULT_VIEW_STATS_CAPABILITY', 'publish_posts');
 define('TGUY_SM_OPTIONS_CAPABILITY', 'manage_options');
 // Capability users must have in order to set options.
 
-define('TGUY_SM_DASHBOARD_NEWS_URL', 'http://thunderguy.com/public/search-meter-dashboard-news-fragment.php');
-// URL to fetch news for the dashboard from
-
 
 //////// General admin
 
@@ -89,9 +86,6 @@ div.sm-stats-clear {
 #dashboard_search_meter div.sm-stats-table th {
 	color: #8F8F8F;
 }
-#dashboard_search_meter div.sm-news {
-	margin-top: 1em;
-}
 #dashboard_search_meter ul.subsubsub {
 	float: none;
 }
@@ -103,8 +97,6 @@ div.sm-stats-clear {
 
 //////// Initialisation
 
-
-register_activation_hook(__FILE__, 'tguy_sm_init');
 
 function tguy_sm_init() {
 	tguy_sm_create_summary_table();
@@ -181,7 +173,6 @@ function smcln_sm_summary() {
 		<h4>Searches in the Last 7 Days</h4>
 		<?php tguy_sm_summary_table(7); ?>
 	</div>
-	<div class="sm-news" style="display:none"></div>
 	<ul class="subsubsub">
 		<li><a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>">Full Dashboard</a> |</li>
 		<?php if (current_user_can(TGUY_SM_OPTIONS_CAPABILITY)) : ?>
@@ -190,33 +181,6 @@ function smcln_sm_summary() {
 		<li><a href="http://thunderguy.com/semicolon/donate/">Donate</a></li>
 	</ul>
 <?php
-}
-
-// Dashboard widget ajax
-
-add_action('admin_head', 'smcln_dashboard_ajax_javascript');
-
-function smcln_dashboard_ajax_javascript() {
-	if (smcln_sm_can_view_stats()) {
-	?>
-<script type="text/javascript" >
-jQuery(document).ready(function($) {
-	$(".sm-news").load(ajaxurl, {action: 'smcln_dashboard'}, function() {
-		if ($(this).html()) {
-			$(this).slideDown();
-		}
-	});
-});
-</script>
-<?php
-	}
-}
-
-add_action('wp_ajax_smcln_dashboard', 'smcln_dashboard_ajax');
-
-function smcln_dashboard_ajax() {
-	echo wp_remote_retrieve_body( wp_remote_get(TGUY_SM_DASHBOARD_NEWS_URL) );
-	die(); // this is required to return a proper result
 }
 
 
@@ -311,7 +275,7 @@ function tguy_sm_summary_page() {
 		<p>To manage your search statistics, go to the <a href="options-general.php?page=<?php echo plugin_basename(__FILE__); ?>">Search Meter Settings</a> page.</p>
 		<?php endif; ?>
 
-		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
+		<p>For information and updates, see the <a href="http://thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
 
 		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_message(); } ?>
 
@@ -456,7 +420,7 @@ function tguy_sm_recent_page($max_lines, $do_show_details) {
 		<p>To manage your search statistics, go to the <a href="options-general.php?page=<?php echo plugin_basename(__FILE__); ?>">Search Meter Settings</a> page.</p>
 		<?php endif; ?>
 
-		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
+		<p>For information and updates, see the <a href="http://thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. You can also offer suggestions, request new features or report problems.</p>
 
 		<?php if (!$options['sm_disable_donation']) { tguy_sm_show_donation_message(); } ?>
 
@@ -594,7 +558,7 @@ function tguy_sm_options_page() {
 
 		<p>To see your search statistics, go to the <a href="index.php?page=<?php echo plugin_basename(__FILE__); ?>">Search Meter Dashboard</a>.</p>
 
-		<p>For information and updates, see the <a href="http://www.thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. At that page, you can also offer suggestions, request new features or report problems.</p>
+		<p>For information and updates, see the <a href="http://thunderguy.com/semicolon/wordpress/search-meter-wordpress-plugin/">Search Meter home page</a>. At that page, you can also offer suggestions, request new features or report problems.</p>
 
 		<?php if ( ! tguy_sm_array_value($options, 'sm_disable_donation')) { tguy_sm_show_donation_message(); } ?>
 
